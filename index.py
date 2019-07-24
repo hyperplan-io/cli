@@ -5,13 +5,19 @@ from hpcmd import HyperplanPrompt
 from errors import InvalidCredentials
 from api import Api
 
-def start_cmd(root_api_url, login, password):
+def get_api(root_api_url, login, password):
+    return Api(root_api_url, login, password)
+
+def create_api_and_start_cmd(root_api_url, login, password):
+    api = get_api(root_api_url, login, password)
+    start_cmd(api)
+    
+def start_cmd(api):
     try:
-        api = Api(root_api_url, login, password)
         HyperplanPrompt(api).cmdloop()
     except InvalidCredentials:
         login, password = prompt_credentials()
-        start_cmd(root_api_url, login, password)
+        create_api_and_start_cmd(root_api_url, login, password)
 
 def get_password():
     service = "hyperplan-cli"
@@ -27,11 +33,15 @@ def prompt_credentials():
 root_api_url = 'http://localhost:8090'
 login, password = get_password()
 if login != None and password != None:
-    start_cmd(root_api_url, login, password)
+    create_api_and_start_cmd(root_api_url, login, password)
 else:
     try:
         login, password = prompt_credentials()
-        start_cmd(root_api_url, login, password)
+        api = get_api(root_api_url, login, password)
+        api.authenticate()
+        start_cmd(api)
+    except InvalidCredentials:
+        print('Invalid credentials')
     except Exception as error:
         print(error)
 
