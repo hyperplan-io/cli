@@ -1,19 +1,25 @@
 import requests
+import keyring
 from errors import InvalidCredentials
 from http.client import RemoteDisconnected
 from requests.exceptions import ConnectionError
 
 class Api():
 
-    def __init__(self, root_api_url, login, password):
+    def __init__(self, service, root_api_url, login, password):
+        self.service = service
         self.root_api_url = root_api_url
         self.login = login
         self.password = password
         self.token = None
 
+    def persist_credentials(self):
+        keyring.set_password(self.service, 'username', self.login)
+        keyring.set_password(self.service, 'password', self.password)
+
     def get_token_if_needed(self):
         if self.token == None:
-            self.authenticate(log_error=False)
+            self.authenticate(save_credentials=False, log_error=False)
 
     def handle_status_code(self, status_code): 
         if status_code == 401:
@@ -23,7 +29,7 @@ class Api():
     def remote_disconnected(self):
         print('Server is not reachable, is it running on {}'.format(self.root_api_url))
     
-    def authenticate(self, log_error=True):
+    def authenticate(self, save_credentials=False, log_error=True):
         try:
             response = requests.post(
                 '{}/authentication'.format(self.root_api_url),
@@ -33,6 +39,8 @@ class Api():
                 }
             )
             if response.status_code == 200:
+                if save_credentials:
+                    self.persist_credentials()
                 self.token = response.json()['token']
             elif response.status_code == 401:
                 raise InvalidCredentials()
@@ -99,3 +107,12 @@ class Api():
                     print(algorithm['id'])
         except (RemoteDisconnected, ConnectionError):
             self.remote_disconnected()
+    def create_feature(self):
+        pass
+    def create_label(self):
+        pass
+    def create_algorithm(self):
+        pass
+    def create_project(self):
+        pass
+
