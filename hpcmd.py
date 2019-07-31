@@ -1,34 +1,12 @@
 
 from cmd import Cmd
 from api import Api
-from prettytable import PrettyTable
 
-def qcm(choice_1, choice_2, choice_3):
-    print('1. Create a new feature')
-    print('2. Stop and create')
-    print('3. Stop and erase')
-    choice = input('Choose: ')
-    if choice == '1':
-        return choice_1()
-    elif choice == '2':
-        return choice_2()
-    elif choice == '3':
-        return choice_3()
-    else:
-        return qcm(choice_1, choice_2, choice_3)
 
-def create_single_feature():
-    print("============== Create feature")
-    name = input('name: ')
-    feature_type = input('type(string, float, int): ')
-    dimension = input('dimension(one, array, matrix): ')
-    description = input('description: ')
-    print("==============")
-    return [name, feature_type, dimension, description]
-def post_features():
-    return []
-def noop():
-    return []
+from features_descriptors import create_features
+from labels_descriptors import create_labels
+ 
+
 
 class HyperplanPrompt(Cmd):
     prompt = 'hyperplan> '
@@ -64,6 +42,7 @@ class HyperplanPrompt(Cmd):
                 print('Unknown argument {}'.format(arg))
         else:
             self.help_list()
+
     def help_create(self):
         print('create requires an argument: feature, label, algorithm, project')
     def complete_create(self, text, line, begidx, endidx):
@@ -75,15 +54,9 @@ class HyperplanPrompt(Cmd):
         if len(args) > 0 and args[0] != '':
             arg = args[0]
             if arg == 'feature':
-                table = PrettyTable(['Name', 'Type', 'Dimension', 'Description'])
-                feature_name = input('id: ')
-                features = [[]]
-                while True:
-                    table.add_row(qcm(create_single_feature, post_features, noop))
-                    print(table)
-                self.api.create_feature()
+                create_features(self.api)
             elif arg == 'label':
-                self.api.create_label()
+                create_labels(self.api)
             elif arg == 'algorithm':
                 self.api.create_algorithm()
             elif arg == 'project':
