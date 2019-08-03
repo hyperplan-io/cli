@@ -48,7 +48,7 @@ class Api():
             if log_error:
                 self.remote_disconnected()
 
-    def list_features(self):
+    def list_features(self, log=True):
         try:
             self.get_token_if_needed()
             response = requests.get(
@@ -58,12 +58,14 @@ class Api():
             self.handle_status_code(response.status_code)
             if response.status_code == 200:
                 features = response.json()
-                for feature in features:
-                    print(feature['id'])
+                if log:
+                    for feature in features:
+                        print(feature['id'])
+                return features
         except (RemoteDisconnected, ConnectionError):
             self.remote_disconnected()
 
-    def list_labels(self):
+    def list_labels(self, log=True):
         try:
             self.get_token_if_needed()
             response = requests.get(
@@ -73,12 +75,14 @@ class Api():
             self.handle_status_code(response.status_code)
             if response.status_code == 200:
                 labels = response.json()
-                for label in labels:
-                    print(label['id'])
+                if log:
+                    for label in labels:
+                        print(label['id'])
+                return labels
         except (RemoteDisconnected, ConnectionError):
             self.remote_disconnected()
 
-    def list_projects(self):
+    def list_projects(self, log=True):
         try:
             self.get_token_if_needed()
             response = requests.get(
@@ -88,12 +92,14 @@ class Api():
             self.handle_status_code(response.status_code)
             if response.status_code == 200:
                 projects = response.json()
-                for project in projects:
-                    print(project['id'])
+                if log:
+                    for project in projects:
+                        print(project['id'])
+                return projects
         except (RemoteDisconnected, ConnectionError):
             self.remote_disconnected()
                 
-    def list_algorithms(self):
+    def list_algorithms(self, log=True):
         try:
             self.get_token_if_needed()
             response = requests.get(
@@ -103,8 +109,10 @@ class Api():
             self.handle_status_code(response.status_code)
             if response.status_code == 200:
                 algorithms = response.json()
-                for algorithm in algorithms:
-                    print(algorithm['id'])
+                if log:
+                    for algorithm in algorithms:
+                        print(algorithm['id'])
+                return algorithms
         except (RemoteDisconnected, ConnectionError):
             self.remote_disconnected()
     def create_feature(self, feature):
@@ -145,6 +153,22 @@ class Api():
             self.remote_disconnected()
     def create_algorithm(self):
         pass
-    def create_project(self):
-        pass
+    def create_project(self, project):
+        try:
+            print(project.to_json())
+            self.get_token_if_needed()
+            response = requests.post(
+                '{}/projects'.format(self.root_api_url),
+                json = project.to_json(),
+                headers = { 'Authorization': 'Bearer {}'.format(self.token)}
+            )
+            self.handle_status_code(response.status_code)
+            if response.status_code == 200:
+                print('success')
+            elif response.status_code == 400:
+                print('bad argument')
+            else:
+                print('status is {}'.format(response.status_code))
+        except (RemoteDisconnected, ConnectionError):
+            self.remote_disconnected()
 
