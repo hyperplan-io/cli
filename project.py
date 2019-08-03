@@ -1,3 +1,4 @@
+from prettytable import PrettyTable
 
 class Project():
 
@@ -44,6 +45,23 @@ def get_problem_type():
         return get_problem_type()
     else:
         return problem_type
+
+def list_projects(api):
+    try:
+        projects = api.list_projects(log=False)
+        table = PrettyTable(['id', 'name', 'type', 'features', 'labels', 'algorithms'])
+        for project in projects:
+            project_id = project['id']
+            project_name = project['name']
+            project_problem = project['problem']
+            project_features = project['configuration']['features']['id']
+            project_labels = project['configuration']['labels']['id']
+            project_algorithms = len(project['algorithms'])
+            table.add_row([project_id, project_name, project_problem, project_features, project_labels, project_algorithms])
+        print(table)
+
+    except Exception as err:
+        print(err)
 
 def create_project(api):
     try:
