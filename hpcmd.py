@@ -5,6 +5,7 @@ from api import Api
 
 from features_descriptors import create_features
 from labels_descriptors import create_labels
+from project import create_project
  
 
 
@@ -60,7 +61,7 @@ class HyperplanPrompt(Cmd):
             elif arg == 'algorithm':
                 self.api.create_algorithm()
             elif arg == 'project':
-                self.api.create_project()
+                create_project(self.api)
             else:
                 print('Unknown argument {}'.format(arg))
         else:
