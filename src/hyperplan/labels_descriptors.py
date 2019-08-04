@@ -42,7 +42,6 @@ def list_labels(api):
                 print('Label type is unknown')
         print(table)
     except Exception as err:
-        print('fuck')
         print(err)
 
 def describe_label(api, label_id):

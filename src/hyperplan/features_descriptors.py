@@ -32,14 +32,17 @@ def get_features_id():
     return feature_id
 
 def list_features(api):
-    table = PrettyTable(['id', 'feature names'])
-    features = api.list_features(log=False)
-    for feature in features:
-        feature_id = feature['id']
-        feature_data = feature['data']
-        feature_names = ", ".join([data['name']for data in feature_data])
-        table.add_row([feature_id, feature_names])
-    print(table)
+    try:
+        table = PrettyTable(['id', 'feature names'])
+        features = api.list_features(log=False)
+        for feature in features:
+            feature_id = feature['id']
+            feature_data = feature['data']
+            feature_names = ", ".join([data['name']for data in feature_data])
+            table.add_row([feature_id, feature_names])
+        print(table)
+    except Exception:
+        pass
 
 
 def describe_feature(api, feature_id):
