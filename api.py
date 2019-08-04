@@ -99,22 +99,6 @@ class Api():
         except (RemoteDisconnected, ConnectionError):
             self.remote_disconnected()
                 
-    def list_algorithms(self, log=True):
-        try:
-            self.get_token_if_needed()
-            response = requests.get(
-                '{}/algorithms'.format(self.root_api_url),
-                headers = { 'Authorization': 'Bearer {}'.format(self.token)}
-            )
-            self.handle_status_code(response.status_code)
-            if response.status_code == 200:
-                algorithms = response.json()
-                if log:
-                    for algorithm in algorithms:
-                        print(algorithm['id'])
-                return algorithms
-        except (RemoteDisconnected, ConnectionError):
-            self.remote_disconnected()
     def create_feature(self, feature):
         try:
             print(feature.to_json())
@@ -128,7 +112,8 @@ class Api():
             if response.status_code == 200:
                 print('success')
             elif response.status_code == 400:
-                print('bad argument')
+                for error in response.json():
+                    print('{} : {}'.format(error['class'], error['message']))
             else:
                 print('status is {}'.format(response.status_code))
         except (RemoteDisconnected, ConnectionError):
@@ -146,13 +131,31 @@ class Api():
             if response.status_code == 200:
                 print('success')
             elif response.status_code == 400:
-                print('bad argument')
+                for error in response.json():
+                    print('{} : {}'.format(error['class'], error['message']))
             else:
                 print('status is {}'.format(response.status_code))
         except (RemoteDisconnected, ConnectionError):
             self.remote_disconnected()
-    def create_algorithm(self):
-        pass
+    def create_algorithm(self, algorithm):
+        try:
+            print(algorithm.to_json())
+            self.get_token_if_needed()
+            response = requests.post(
+                '{}/algorithms'.format(self.root_api_url),
+                json = algorithm.to_json(),
+                headers = { 'Authorization': 'Bearer {}'.format(self.token)}
+            )
+            self.handle_status_code(response.status_code)
+            if response.status_code == 200:
+                print('success')
+            elif response.status_code == 400:
+                for error in response.json():
+                    print('{} : {}'.format(error['class'], error['message']))
+            else:
+                print('status is {}'.format(response.status_code))
+        except (RemoteDisconnected, ConnectionError):
+            self.remote_disconnected()
     def create_project(self, project):
         try:
             print(project.to_json())
@@ -166,9 +169,56 @@ class Api():
             if response.status_code == 200:
                 print('success')
             elif response.status_code == 400:
-                print('bad argument')
+                for error in response.json():
+                    print('{} : {}'.format(error['class'], error['message']))
             else:
                 print('status is {}'.format(response.status_code))
+        except (RemoteDisconnected, ConnectionError):
+            self.remote_disconnected()
+    def get_project(self, project_id, log=True):
+        try:
+            self.get_token_if_needed()
+            response = requests.get(
+                '{}/projects/{}'.format(self.root_api_url, project_id),
+                headers = { 'Authorization': 'Bearer {}'.format(self.token)}
+            )
+            self.handle_status_code(response.status_code)
+            if response.status_code == 200:
+                project = response.json()
+                if log:
+                    print(project)
+                return project
+        except (RemoteDisconnected, ConnectionError):
+            self.remote_disconnected()
+
+    def get_features(self, features_id, log=True):
+        try:
+            self.get_token_if_needed()
+            response = requests.get(
+                '{}/features/{}'.format(self.root_api_url, features_id),
+                headers = { 'Authorization': 'Bearer {}'.format(self.token)}
+            )
+            self.handle_status_code(response.status_code)
+            if response.status_code == 200:
+                features = response.json()
+                if log:
+                    print(features)
+                return features 
+        except (RemoteDisconnected, ConnectionError):
+            self.remote_disconnected()
+    def get_labels(self, labels_id, log=True):
+        try:
+            self.get_token_if_needed()
+            response = requests.get(
+                '{}/labels/{}'.format(self.root_api_url, labels_id),
+                headers = { 'Authorization': 'Bearer {}'.format(self.token)}
+            )
+            self.handle_status_code(response.status_code)
+            if response.status_code == 200:
+                labels = response.json()
+                if log:
+                    print(labels)
+                return labels 
         except (RemoteDisconnected, ConnectionError):
             self.remote_disconnected()
 
