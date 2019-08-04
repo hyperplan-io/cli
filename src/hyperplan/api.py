@@ -1,6 +1,6 @@
 import requests
 import keyring
-from errors import InvalidCredentials
+from hyperplan.errors import InvalidCredentials
 from http.client import RemoteDisconnected
 from requests.exceptions import ConnectionError
 

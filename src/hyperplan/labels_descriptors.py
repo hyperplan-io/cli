@@ -1,7 +1,8 @@
-from get_input import get_feature_type, get_feature_dimension, get_alphanumerical_id
 from prettytable import PrettyTable
-from qcm_result import QCMResult
-from label_schema import LabelSchema 
+
+from hyperplan.qcm_result import QCMResult
+from hyperplan.get_input import get_feature_type, get_feature_dimension, get_alphanumerical_id
+from hyperplan.label_schema import LabelSchema 
 
 def post_features():
     return []

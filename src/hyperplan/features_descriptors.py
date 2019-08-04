@@ -1,7 +1,8 @@
-from get_input import get_feature_type, get_feature_dimension, get_alphanumerical_id
 from prettytable import PrettyTable
-from qcm_result import QCMResult
-from feature_schema import FeatureSchema
+
+from hyperplan.qcm_result import QCMResult
+from hyperplan.get_input import get_feature_type, get_feature_dimension, get_alphanumerical_id
+from hyperplan.feature_schema import FeatureSchema
 
 def post_features():
     return []
@@ -34,7 +35,6 @@ def list_features(api):
     table = PrettyTable(['id', 'feature names'])
     features = api.list_features(log=False)
     for feature in features:
-        print(feature)
         feature_id = feature['id']
         feature_data = feature['data']
         feature_names = ", ".join([data['name']for data in feature_data])

@@ -1,10 +1,12 @@
+#!/usr/bin/env python
+
 import keyring
 import getpass
 import os
 
-from hpcmd import HyperplanPrompt
-from errors import InvalidCredentials
-from api import Api
+from hyperplan.hpcmd import HyperplanPrompt
+from hyperplan.errors import InvalidCredentials
+from hyperplan.api import Api
 
 default_service = "hyperplan-cli"
 

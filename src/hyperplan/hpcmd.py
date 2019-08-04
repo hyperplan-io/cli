@@ -1,15 +1,12 @@
 
 from cmd import Cmd
-from api import Api
 
-
-from features_descriptors import create_features, describe_feature, list_features
-from labels_descriptors import create_labels, describe_label, list_labels
-from project import create_project, list_projects
-from algorithm import create_algorithm
-from predict import predict
- 
-
+from hyperplan.api import Api
+from hyperplan.features_descriptors import create_features, describe_feature, list_features
+from hyperplan.labels_descriptors import create_labels, describe_label, list_labels
+from hyperplan.project import create_project, list_projects
+from hyperplan.algorithm import create_algorithm
+from hyperplan.predict import predict
 
 class HyperplanPrompt(Cmd):
     prompt = 'hyperplan> '
@@ -34,12 +31,11 @@ class HyperplanPrompt(Cmd):
         if len(args) > 0 and args[0] != '':
             arg = args[0]
             if arg == 'features':
-                self.api.list_features()
                 list_features(self.api)
             elif arg == 'labels':
                 list_labels(self.api)
             elif arg == 'algorithms':
-                self.api.list_algorithms()
+                pass
             elif arg == 'projects':
                 list_projects(self.api)
             else:
