@@ -239,3 +239,5 @@ class Api():
                 print('status is {}'.format(response.status_code))
         except (RemoteDisconnected, ConnectionError):
             self.remote_disconnected()
+            
+    

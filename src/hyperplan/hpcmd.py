@@ -16,7 +16,7 @@ class HyperplanPrompt(Cmd):
         self.api = api
     def do_exit(self, inp):
         print("Bye")
-        return True
+        raise Exception('')
     def do_login(self, inp):
         self.api.authenticate()
     def help_list(self):
