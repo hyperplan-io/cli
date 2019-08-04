@@ -72,10 +72,8 @@ def create_features(api):
         print('saving feature descriptor {}'.format(feature_id))
         try:
             api.create_feature(FeatureSchema(feature_id, features))
-            print('its ok')
-        except Exception as err:
-            print(err)
-            print('something did not work')
+        except Exception:
+            pass
 
 def feature_build(feature_name, feature_type, feature_dimension, feature_description):
     return {'name': feature_name, 'type': feature_type, 'dimension': feature_dimension, 'description': feature_description}

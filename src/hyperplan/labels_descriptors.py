@@ -42,7 +42,7 @@ def list_labels(api):
                 print('Label type is unknown')
         print(table)
     except Exception as err:
-        print(err)
+        pass
 
 def describe_label(api, label_id):
     try:
@@ -64,7 +64,7 @@ def describe_label(api, label_id):
         else:
             print('Label type is unknown')
     except Exception as err:
-        print(err)
+        pass
 
 def get_labels_id():
     feature_id = input('id: ')
