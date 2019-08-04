@@ -7,6 +7,7 @@ from features_descriptors import create_features, describe_feature, list_feature
 from labels_descriptors import create_labels, describe_label, list_labels
 from project import create_project, list_projects
 from algorithm import create_algorithm
+from predict import predict
  
 
 
@@ -93,6 +94,16 @@ class HyperplanPrompt(Cmd):
                 print('Unknown argument {}'.format(arg))
         else:
             self.help_describe()
+    def help_predict(self):
+        print('predict requires a project id as argument')
+    def do_predict(self, inp):
+        args = inp.split(' ')
+        if len(args) > 0 and args[0] != '':
+            project_id = args[0]
+            prediction = predict(self.api, project_id, log=True)
+        else:
+            self.help_predict()
+
     def help_exit(self):
         print('exit the application. Shorthand: x q Ctrl-D.')
     def default(self, inp):
