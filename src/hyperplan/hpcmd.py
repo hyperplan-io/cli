@@ -1,14 +1,12 @@
 
 from cmd import Cmd
-from api import Api
 
-
-from features_descriptors import create_features, describe_feature, list_features
-from labels_descriptors import create_labels, describe_label, list_labels
-from project import create_project, list_projects
-from algorithm import create_algorithm
- 
-
+from hyperplan.api import Api
+from hyperplan.features_descriptors import create_features, describe_feature, list_features
+from hyperplan.labels_descriptors import create_labels, describe_label, list_labels
+from hyperplan.project import create_project, list_projects
+from hyperplan.algorithm import create_algorithm
+from hyperplan.predict import predict
 
 class HyperplanPrompt(Cmd):
     prompt = 'hyperplan> '
@@ -18,7 +16,7 @@ class HyperplanPrompt(Cmd):
         self.api = api
     def do_exit(self, inp):
         print("Bye")
-        return True
+        raise Exception('')
     def do_login(self, inp):
         self.api.authenticate()
     def help_list(self):
@@ -33,12 +31,11 @@ class HyperplanPrompt(Cmd):
         if len(args) > 0 and args[0] != '':
             arg = args[0]
             if arg == 'features':
-                self.api.list_features()
                 list_features(self.api)
             elif arg == 'labels':
                 list_labels(self.api)
             elif arg == 'algorithms':
-                self.api.list_algorithms()
+                pass
             elif arg == 'projects':
                 list_projects(self.api)
             else:
@@ -93,6 +90,16 @@ class HyperplanPrompt(Cmd):
                 print('Unknown argument {}'.format(arg))
         else:
             self.help_describe()
+    def help_predict(self):
+        print('predict requires a project id as argument')
+    def do_predict(self, inp):
+        args = inp.split(' ')
+        if len(args) > 0 and args[0] != '':
+            project_id = args[0]
+            prediction = predict(self.api, project_id, log=True)
+        else:
+            self.help_predict()
+
     def help_exit(self):
         print('exit the application. Shorthand: x q Ctrl-D.')
     def default(self, inp):

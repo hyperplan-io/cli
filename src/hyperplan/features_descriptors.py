@@ -1,7 +1,8 @@
-from get_input import get_feature_type, get_feature_dimension, get_alphanumerical_id
 from prettytable import PrettyTable
-from qcm_result import QCMResult
-from feature_schema import FeatureSchema
+
+from hyperplan.qcm_result import QCMResult
+from hyperplan.get_input import get_feature_type, get_feature_dimension, get_alphanumerical_id
+from hyperplan.feature_schema import FeatureSchema
 
 def post_features():
     return []
@@ -31,15 +32,17 @@ def get_features_id():
     return feature_id
 
 def list_features(api):
-    table = PrettyTable(['id', 'feature names'])
-    features = api.list_features(log=False)
-    for feature in features:
-        print(feature)
-        feature_id = feature['id']
-        feature_data = feature['data']
-        feature_names = ", ".join([data['name']for data in feature_data])
-        table.add_row([feature_id, feature_names])
-    print(table)
+    try:
+        table = PrettyTable(['id', 'feature names'])
+        features = api.list_features(log=False)
+        for feature in features:
+            feature_id = feature['id']
+            feature_data = feature['data']
+            feature_names = ", ".join([data['name']for data in feature_data])
+            table.add_row([feature_id, feature_names])
+        print(table)
+    except Exception:
+        pass
 
 
 def describe_feature(api, feature_id):
@@ -69,10 +72,8 @@ def create_features(api):
         print('saving feature descriptor {}'.format(feature_id))
         try:
             api.create_feature(FeatureSchema(feature_id, features))
-            print('its ok')
-        except Exception as err:
-            print(err)
-            print('something did not work')
+        except Exception:
+            pass
 
 def feature_build(feature_name, feature_type, feature_dimension, feature_description):
     return {'name': feature_name, 'type': feature_type, 'dimension': feature_dimension, 'description': feature_description}

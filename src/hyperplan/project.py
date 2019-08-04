@@ -61,12 +61,16 @@ def list_projects(api):
         print(table)
 
     except Exception as err:
-        print(err)
+        pass
 
 def create_project(api):
     try:
         features = api.list_features(log=False)
+        if features == None:
+            return None
         labels = api.list_labels(log=False)
+        if labels == None:
+            return None
         project_id = get_project_id()
         project_name = get_project_name()
         problem_type = get_problem_type()
@@ -74,8 +78,5 @@ def create_project(api):
         label_id = qcm_labels(labels)
         api.create_project(Project(project_id,project_name, problem_type, feature_id, label_id))
         print("Ready to start predicting !")
-
-
-    except Exception as err:
-        print(err)
+    except Exception:
         pass
