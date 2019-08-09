@@ -46,20 +46,22 @@ def get_password(service):
     return (username, password)
 
 def get_root_api_url(service):
-    root_api_url = keyring.get_password(service, "api_url")
-    should_persist = False
-    if root_api_url == None:
-        root_api_url = input('api url: ')
-        should_persist = True
-    health = get_health(root_api_url)
-    if health and should_persist:
-        set_root_api_url(service, root_api_url)
-    return (health, root_api_url)
-        
-
-def set_root_api_url(service, root_api_url):
-    keyring.set_password(service, 'api_url', root_api_url)
-
+    try:
+        config_file_path =  os.path.expanduser('~/.hyperplan')
+        config_file = open(config_file_path, 'r+')
+        root_api_url = config_file.readline()
+        should_persist = False
+        if root_api_url == "":
+            root_api_url = input('api url: ')
+            should_persist = True
+        health = get_health(root_api_url)
+        if health and should_persist:
+            config_file.write(root_api_url)
+        config_file.flush()
+        config_file.close()
+        return (health, root_api_url)
+    except Exception as err:
+        print(err)
 
 def prompt_credentials():
     login= input("Login: ")

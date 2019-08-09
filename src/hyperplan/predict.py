@@ -35,9 +35,21 @@ def get_feature_value(feature_name, feature_type, feature_dimension, feature_des
     except Exception as err:
         print(err)
 
+def add_example(api, prediction_id):
+    reply = input('Do you want to add an example ? (y/n)')
+    if reply == 'y':
+        label = input('label: ') 
+        return api.add_example(prediction_id, label)
+    elif reply == 'n':
+        return None
+    else:
+        print('Expected y/n')
+        return add_example(api, prediction_id)
+
 def predict(api, project_id, log=True):
     try:
         project = api.get_project(project_id, log=False)
+        problem_type = project['problem']
         features_descriptor = project['configuration']['features']['data']
         features = {}
         for descriptor in features_descriptor:
@@ -48,12 +60,17 @@ def predict(api, project_id, log=True):
             features.update({ feature_name: get_feature_value(feature_name, feature_type, feature_dimension, feature_description) })
         prediction = api.predict(project['id'], features)
         labels = prediction['labels']
-        table = PrettyTable(['label', 'prob'])
         print('\nalgorithm used: {}'.format(prediction['algorithmId']))
-        for label in labels:
-            table.add_row([label['label'], label['probability']])
+        if problem_type  == 'classification':
+            table = PrettyTable(['label', 'prob'])
+            for label in labels:
+                table.add_row([label['label'], label['probability']])
+        elif problem_type == 'regression':
+            table = PrettyTable(['reg'])
+            for label in labels:
+                table.add_row([label['label']])
         print(table)
-
+        add_example(api, prediction['id'])
     except Exception as err:
         print(err)
         pass

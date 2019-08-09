@@ -47,9 +47,7 @@ def list_labels(api):
 def describe_label(api, label_id):
     try:
         label = api.get_labels(label_id, log=False)
-        print(label)
         data = label['data']
-        print(data)
         label_type = data['type']
         label_description = data['description']
         if label_type == 'oneOf':
