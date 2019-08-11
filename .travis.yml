@@ -19,6 +19,6 @@ install:
 # command to run tests
 before_script:
   # Startup the app
-  - curl --retry 10 --retry-connrefused --retry-delay 10 --retry-max-time 60 http://localhost:8080/_health
+  - bash -c 'while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' http://localhost:8080)" != "200" ]]; do sleep 5; done'}
 script:
   - nosetests tests
