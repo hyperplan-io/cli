@@ -24,6 +24,7 @@ class Api():
     def handle_status_code(self, status_code): 
         if status_code == 401:
             self.token = None
+            self.get_token_if_needed()
         elif status_code >= 500:
             self.remote_disconnected()
     def remote_disconnected(self):
@@ -44,10 +45,9 @@ class Api():
                     self.persist_credentials()
                 self.token = response.json()['token']
             elif response.status_code == 401:
-                print('failed')
+                print('Authentication failed')
                 raise InvalidCredentials()
         except (RemoteDisconnected, ConnectionError):
-            print('shit')
             if log_error:
                 self.remote_disconnected()
         except Exception as err:
@@ -240,8 +240,6 @@ class Api():
             elif response.status_code == 400:
                 for error in response.json():
                     print('{} : {}'.format(error['class'], error['message']))
-            else:
-                print('status is {}'.format(response.status_code))
         except (RemoteDisconnected, ConnectionError):
             self.remote_disconnected()
     def add_example(self, prediction_id, label):
@@ -257,8 +255,6 @@ class Api():
             elif response.status_code == 400:
                 for error in response.json():
                     print('{} : {}'.format(error['class'], error['message']))
-            else:
-                print('status is {}'.format(response.status_code))
         except (RemoteDisconnected, ConnectionError):
             self.remote_disconnected()
     def delete_features(self, features_id):
@@ -293,9 +289,6 @@ class Api():
             elif response.status_code == 404:
                 print('Label {} does not exist'.format(labels_id))
                 return False
-            else:
-                print('status is {}'.format(response.status_code))
-                return False
         except (RemoteDisconnected, ConnectionError):
             self.remote_disconnected()
             return False
@@ -313,9 +306,7 @@ class Api():
                 print('Algorithm {} does not exist in project {}'.format(algorithm_id, project_id))
                 return False
             else:
-                print('status is {}'.format(response.status_code))
                 return False
         except (RemoteDisconnected, ConnectionError):
             self.remote_disconnected()
             return False
- 
