@@ -39,14 +39,19 @@ class Api():
                 }
             )
             if response.status_code == 200:
+                print('success')
                 if save_credentials:
                     self.persist_credentials()
                 self.token = response.json()['token']
             elif response.status_code == 401:
+                print('failed')
                 raise InvalidCredentials()
         except (RemoteDisconnected, ConnectionError):
+            print('shit')
             if log_error:
                 self.remote_disconnected()
+        except Exception as err:
+            print(err)
 
     def list_features(self, log=True):
         try:
@@ -137,12 +142,12 @@ class Api():
                 print('status is {}'.format(response.status_code))
         except (RemoteDisconnected, ConnectionError):
             self.remote_disconnected()
-    def create_algorithm(self, algorithm):
+    def create_algorithm(self, project_id, algorithm_id, algorithm):
         try:
             print(algorithm.to_json())
             self.get_token_if_needed()
             response = requests.post(
-                '{}/algorithms'.format(self.root_api_url),
+                '{}/projects/{}/algorithms/{}'.format(self.root_api_url, project_id, algorithm_id),
                 json = algorithm.to_json(),
                 headers = { 'Authorization': 'Bearer {}'.format(self.token)}
             )
@@ -256,4 +261,61 @@ class Api():
                 print('status is {}'.format(response.status_code))
         except (RemoteDisconnected, ConnectionError):
             self.remote_disconnected()
-    
+    def delete_features(self, features_id):
+        try:
+            self.get_token_if_needed()
+            response = requests.delete(
+                '{}/features/{}'.format(self.root_api_url, features_id),
+                headers = { 'Authorization': 'Bearer {}'.format(self.token)}
+            )
+            self.handle_status_code(response.status_code)
+            if response.status_code == 200:
+                return True
+            elif response.status_code == 404:
+                print('Feature {} does not exist'.format(features_id))
+                return False
+            else:
+                print('status is {}'.format(response.status_code))
+                return False
+        except (RemoteDisconnected, ConnectionError):
+            self.remote_disconnected()
+            return False
+    def delete_labels(self, labels_id):
+        try:
+            self.get_token_if_needed()
+            response = requests.delete(
+                '{}/labels/{}'.format(self.root_api_url, labels_id),
+                headers = { 'Authorization': 'Bearer {}'.format(self.token)}
+            )
+            self.handle_status_code(response.status_code)
+            if response.status_code == 200:
+                return True
+            elif response.status_code == 404:
+                print('Label {} does not exist'.format(labels_id))
+                return False
+            else:
+                print('status is {}'.format(response.status_code))
+                return False
+        except (RemoteDisconnected, ConnectionError):
+            self.remote_disconnected()
+            return False
+    def delete_algorithm(self, project_id, algorithm_id):
+        try:
+            self.get_token_if_needed()
+            response = requests.delete(
+                '{}/project/{}/algorithms/{}'.format(self.root_api_url, project_id, algorithm_id),
+                headers = { 'Authorization': 'Bearer {}'.format(self.token)}
+            )
+            self.handle_status_code(response.status_code)
+            if response.status_code == 200:
+                return True
+            elif response.status_code == 404:
+                print('Algorithm {} does not exist in project {}'.format(algorithm_id, project_id))
+                return False
+            else:
+                print('status is {}'.format(response.status_code))
+                return False
+        except (RemoteDisconnected, ConnectionError):
+            self.remote_disconnected()
+            return False
+ 

@@ -46,6 +46,24 @@ def get_problem_type():
     else:
         return problem_type
 
+def describe_project(api, project_id):
+    try:
+        project = api.get_project(project_id, log=False)
+        table = PrettyTable(['id', 'name', 'type', 'features', 'labels', 'algorithms'])
+        project_id = project['id']
+        project_name = project['name']
+        project_problem = project['problem']
+        project_features = project['configuration']['features']['id']
+        project_labels = None
+        if project_problem == 'classification':
+            project_labels = project['configuration']['labels']['id']
+        project_algorithms = len(project['algorithms'])
+        table.add_row([project_id, project_name, project_problem, project_features, project_labels, project_algorithms])
+        print(table)
+        return project
+    except Exception as err:
+        print(err)
+        pass
 def list_projects(api):
     try:
         projects = api.list_projects(log=False)
@@ -61,12 +79,13 @@ def list_projects(api):
             project_algorithms = len(project['algorithms'])
             table.add_row([project_id, project_name, project_problem, project_features, project_labels, project_algorithms])
         print(table)
+        return projects
 
     except Exception as err:
         print(err)
         pass
 
-def create_project(api, project_id):
+def create_project(api, project_id, project_name=None, problem_type=None, feature_id=None, label_id=None):
     try:
         features = api.list_features(log=False)
         if features == None:
@@ -74,11 +93,16 @@ def create_project(api, project_id):
         labels = api.list_labels(log=False)
         if labels == None:
             return None
-        project_name = get_project_name()
-        problem_type = get_problem_type()
-        feature_id = qcm_features(features)
-        label_id = qcm_labels(labels)
+        if project_name == None:
+            project_name = get_project_name()
+        if problem_type == None:
+            problem_type = get_problem_type()
+        if feature_id == None:
+            feature_id = qcm_features(features)
+        if label_id == None:
+            label_id = qcm_labels(labels)
         api.create_project(Project(project_id,project_name, problem_type, feature_id, label_id))
         print("Ready to start predicting !")
-    except Exception:
-        pass
+    except Exception as err:
+        print(err)
+        return None

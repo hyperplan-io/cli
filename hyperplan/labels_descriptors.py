@@ -41,6 +41,7 @@ def list_labels(api):
             else:
                 print('Label type is unknown')
         print(table)
+        return labels
     except Exception as err:
         pass
 
@@ -61,8 +62,10 @@ def describe_label(api, label_id):
             print(table)
         else:
             print('Label type is unknown')
+        return label
     except Exception as err:
-        pass
+        print(err)
+        return None
 
 def get_labels_id():
     feature_id = input('id: ')
@@ -88,8 +91,8 @@ def get_label_description():
 
 
 
-def create_labels(api, label_id):
-    label_data = get_label_data()
+def create_labels(api, label_id, label_type=None, label_one_of=None, label_description=None):
+    label_data = get_label_data(label_type, label_one_of, label_description)
     try:
         api.create_label(LabelSchema(label_id, label_data))
     except Exception as err:
@@ -100,12 +103,16 @@ def label_build(label_type, label_one_of, label_description):
     return {'type': label_type, 'oneOf': label_one_of, 'description': label_description}
 
 
-def get_label_data():
-    label_type = get_label_type()
-    label_one_of = []
-    if label_type == 'oneOf':
+def get_label_data(label_type=None, label_one_of=None, label_description=None):
+    if label_type == None:
+        label_type = get_label_type()
+    if label_type == 'oneOf' and label_one_of == None:
         label_one_of = get_label_one_of()
-    label_description = get_label_description()
+    elif label_type == 'dynamic':
+        label_one_of = []
+    print(label_one_of)
+    if label_description == None:
+        label_description = get_label_description()
     print("==============")
     return label_build(label_type, label_one_of, label_description)
 

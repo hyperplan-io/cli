@@ -41,6 +41,7 @@ def list_features(api):
             feature_names = ", ".join([data['name']for data in feature_data])
             table.add_row([feature_id, feature_names])
         print(table)
+        return features
     except Exception:
         pass
 
@@ -55,20 +56,27 @@ def describe_feature(api, feature_id):
         feature_description = data['description']
         table.add_row([feature_name, feature_type, feature_dimension, feature_description])
     print(table)
+    return features
 
-def create_features(api, feature_id):
-    table = PrettyTable(['name', 'type', 'dimension', 'description'])
-    features = []
-    print(table)
-    while True:
-        (result, feature) = qcm(get_feature_data, post_features, noop)
-        if result != QCMResult.CREATED_FEATURE:
-            break
-        features.append(feature)
-        table.add_row(feature.values())
+def create_features(api, feature_id, features=None):
+    if features == None:
+        table = PrettyTable(['name', 'type', 'dimension', 'description'])
+        features = []
         print(table)
-    if result == QCMResult.CLOSE_AND_SAVE:
-        print('saving feature descriptor {}'.format(feature_id))
+        while True:
+            (result, feature) = qcm(get_feature_data, post_features, noop)
+            if result != QCMResult.CREATED_FEATURE:
+                break
+            features.append(feature)
+            table.add_row(feature.values())
+            print(table)
+        if result == QCMResult.CLOSE_AND_SAVE:
+            print('saving feature descriptor {}'.format(feature_id))
+            try:
+                api.create_feature(FeatureSchema(feature_id, features))
+            except Exception:
+                pass
+    else:
         try:
             api.create_feature(FeatureSchema(feature_id, features))
         except Exception:
