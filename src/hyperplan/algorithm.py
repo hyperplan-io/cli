@@ -192,9 +192,8 @@ def get_security_config():
     else:
         return SecurityConfig('plain', [])
 
-def create_algorithm(api):
+def create_algorithm(api, algorithm_id):
     try:
-        algorithm_id = get_algorithm_id()
         print('===== Project =====')
         projects = api.list_projects(log=True)
         print('===== ======= =====')

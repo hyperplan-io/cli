@@ -56,9 +56,8 @@ def describe_feature(api, feature_id):
         table.add_row([feature_name, feature_type, feature_dimension, feature_description])
     print(table)
 
-def create_features(api):
+def create_features(api, feature_id):
     table = PrettyTable(['name', 'type', 'dimension', 'description'])
-    feature_id = get_features_id() 
     features = []
     print(table)
     while True:

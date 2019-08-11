@@ -88,8 +88,7 @@ def get_label_description():
 
 
 
-def create_labels(api):
-    label_id = get_labels_id() 
+def create_labels(api, label_id):
     label_data = get_label_data()
     try:
         api.create_label(LabelSchema(label_id, label_data))

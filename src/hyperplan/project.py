@@ -66,7 +66,7 @@ def list_projects(api):
         print(err)
         pass
 
-def create_project(api):
+def create_project(api, project_id):
     try:
         features = api.list_features(log=False)
         if features == None:
@@ -74,7 +74,6 @@ def create_project(api):
         labels = api.list_labels(log=False)
         if labels == None:
             return None
-        project_id = get_project_id()
         project_name = get_project_name()
         problem_type = get_problem_type()
         feature_id = qcm_features(features)
