@@ -19,6 +19,6 @@ install:
 # command to run tests
 before_script:
   # Startup the app
-  - curl --retry 10 --retry-max-time 60 http://localhost:8080/_health
+  - curl --retry 10 --retry-connrefused --retry-delay 10 --retry-max-time 60 http://localhost:8080/_health
 script:
   - nosetests tests
