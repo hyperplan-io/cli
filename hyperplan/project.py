@@ -85,6 +85,24 @@ def list_projects(api):
         print(err)
         pass
 
+def list_algorithms(project):
+    try:
+        print(project['algorithms'])
+        table = PrettyTable(['id', 'backend', 'headers'])
+        algorithms = project['algorithms']
+        for algorithm in algorithms:
+            algorithm_id = algorithm['id']
+            algorithm_backend = algorithm['backend']
+            backend_class = algorithm_backend['class']
+            algorithm_headers = algorithm['security']['headers']
+            table.add_row([algorithm_id, backend_class, algorithm_headers])
+        print(table)
+        return algorithms
+    except Exception as err:
+        print(err)
+        return None
+
+
 def create_project(api, project_id, project_name=None, problem_type=None, feature_id=None, label_id=None):
     try:
         features = api.list_features(log=False)
@@ -106,3 +124,21 @@ def create_project(api, project_id, project_name=None, problem_type=None, featur
     except Exception as err:
         print(err)
         return None
+def update_project(api, project_id):
+    project = api.get_project(project_id, log=False)
+    if project is not None:
+        print('1. Set default algorithm')
+        print('2. Set AB testing')
+        choice = input('choice: ')
+        if choice == '1':
+            list_algorithms(project)
+            algorithm_id = input('id of the default algorithm: ')
+        elif choice == '2':
+            for algorithm in project['algorithms']:
+                weight = input('algorithm {}, weight: '.format(algorithm['id']))
+        else:
+            print('choice should be either 1 or 2')
+            return update_project(api, project_id)
+    else:
+        print('Project {} does not exist'.format(project_id))
+        return False

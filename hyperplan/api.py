@@ -40,7 +40,6 @@ class Api():
                 }
             )
             if response.status_code == 200:
-                print('success')
                 if save_credentials:
                     self.persist_credentials()
                 self.token = response.json()['token']
@@ -144,9 +143,8 @@ class Api():
             self.remote_disconnected()
     def create_algorithm(self, project_id, algorithm_id, algorithm):
         try:
-            print(algorithm.to_json())
             self.get_token_if_needed()
-            response = requests.post(
+            response = requests.put(
                 '{}/projects/{}/algorithms/{}'.format(self.root_api_url, project_id, algorithm_id),
                 json = algorithm.to_json(),
                 headers = { 'Authorization': 'Bearer {}'.format(self.token)}
@@ -292,6 +290,7 @@ class Api():
         except (RemoteDisconnected, ConnectionError):
             self.remote_disconnected()
             return False
+            
     def delete_algorithm(self, project_id, algorithm_id):
         try:
             self.get_token_if_needed()
@@ -307,6 +306,24 @@ class Api():
                 return False
             else:
                 return False
+        except (RemoteDisconnected, ConnectionError):
+            self.remote_disconnected()
+            return False
+
+    def update_project(self, project_id, policy):
+        try:
+            self.get_token_if_needed()
+            response = requests.patch(
+                '{}/project/{}'.format(self.root_api_url, project_id),
+                json = {'policy': policy.to_json()},
+                headers = { 'Authorization': 'Bearer {}'.format(self.token)}
+            )
+            self.handle_status_code(response.status_code)
+            if response.status_code == 200:
+                return True
+            elif response.status_code == 400:
+                for error in response.json():
+                    print('{} : {}'.format(error['class'], error['message']))
         except (RemoteDisconnected, ConnectionError):
             self.remote_disconnected()
             return False
