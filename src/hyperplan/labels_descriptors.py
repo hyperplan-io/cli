@@ -47,9 +47,7 @@ def list_labels(api):
 def describe_label(api, label_id):
     try:
         label = api.get_labels(label_id, log=False)
-        print(label)
         data = label['data']
-        print(data)
         label_type = data['type']
         label_description = data['description']
         if label_type == 'oneOf':
@@ -90,8 +88,7 @@ def get_label_description():
 
 
 
-def create_labels(api):
-    label_id = get_labels_id() 
+def create_labels(api, label_id):
     label_data = get_label_data()
     try:
         api.create_label(LabelSchema(label_id, label_data))

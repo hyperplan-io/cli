@@ -46,7 +46,8 @@ class HyperplanPrompt(Cmd):
     def help_describe(self):
         print('describe requires the entity type (feature, label, algorithm, project) and the entity id')
     def help_create(self):
-        print('create requires an argument: feature, label, algorithm, project')
+        print('create requires an argument: feature, label, algorithm, project and the id')
+        print('example: create project myProject')
 
     def complete_describe(self, text, line, begidx, endidx):
         return [i
@@ -58,16 +59,17 @@ class HyperplanPrompt(Cmd):
             if i.startswith(text)]
     def do_create(self, inp):
         args = inp.split(' ')
-        if len(args) > 0 and args[0] != '':
+        if len(args) > 1 and args[0] != '' and args[1] != '':
             arg = args[0]
+            entity_id = args[1]
             if arg == 'feature':
-                create_features(self.api)
+                create_features(self.api, entity_id)
             elif arg == 'label':
-                create_labels(self.api)
+                create_labels(self.api, entity_id)
             elif arg == 'algorithm':
-                create_algorithm(self.api)
+                create_algorithm(self.api, entity_id)
             elif arg == 'project':
-                create_project(self.api)
+                create_project(self.api, entity_id)
             else:
                 print('Unknown argument {}'.format(arg))
         else:

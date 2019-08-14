@@ -239,5 +239,21 @@ class Api():
                 print('status is {}'.format(response.status_code))
         except (RemoteDisconnected, ConnectionError):
             self.remote_disconnected()
-            
+    def add_example(self, prediction_id, label):
+        try:
+            self.get_token_if_needed()
+            response = requests.post(
+                '{}/examples?predictionId={}&label={}&isCorrect=true'.format(self.root_api_url, prediction_id, label),
+                headers = { 'Authorization': 'Bearer {}'.format(self.token)}
+            )
+            self.handle_status_code(response.status_code)
+            if response.status_code == 201:
+                return response.json()
+            elif response.status_code == 400:
+                for error in response.json():
+                    print('{} : {}'.format(error['class'], error['message']))
+            else:
+                print('status is {}'.format(response.status_code))
+        except (RemoteDisconnected, ConnectionError):
+            self.remote_disconnected()
     

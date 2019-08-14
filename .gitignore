@@ -2,3 +2,5 @@ __pycache__/
 build
 dist
 hyperplan_cli.egg-info/
+src/hyperplan_cli.egg-info/PKG-INFO
+src/demo.yml

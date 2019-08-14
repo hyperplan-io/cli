@@ -39,7 +39,7 @@ def qcm_labels(labels):
     return label
 
 def get_problem_type():
-    problem_type = input("problem_type(classification or regression): ") 
+    problem_type = input("problem category(classification or regression): ") 
     if problem_type != "classification" and problem_type != "regression":
         print("problem type should be classification or regression")
         return get_problem_type()
@@ -55,15 +55,18 @@ def list_projects(api):
             project_name = project['name']
             project_problem = project['problem']
             project_features = project['configuration']['features']['id']
-            project_labels = project['configuration']['labels']['id']
+            project_labels = None
+            if project_problem == 'classification':
+                project_labels = project['configuration']['labels']['id']
             project_algorithms = len(project['algorithms'])
             table.add_row([project_id, project_name, project_problem, project_features, project_labels, project_algorithms])
         print(table)
 
     except Exception as err:
+        print(err)
         pass
 
-def create_project(api):
+def create_project(api, project_id):
     try:
         features = api.list_features(log=False)
         if features == None:
@@ -71,7 +74,6 @@ def create_project(api):
         labels = api.list_labels(log=False)
         if labels == None:
             return None
-        project_id = get_project_id()
         project_name = get_project_name()
         problem_type = get_problem_type()
         feature_id = qcm_features(features)
