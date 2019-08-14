@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name='hyperplan-cli',  
-    version='0.0.1',
+    version='0.0.1-rc2',
     author="Antoine Sauray",
     author_email="antoine@hyperplan.io",
     description="A Hyperplan cli tool to help you manage your Hyperplan server",
