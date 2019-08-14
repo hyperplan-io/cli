@@ -1,4 +1,5 @@
 from prettytable import PrettyTable
+import logging
 
 class DefaultAlgorithmPolicy():
     def __init__(self, default_algorithm_id):
@@ -59,9 +60,9 @@ def get_problem_type():
     else:
         return problem_type
 
-def describe_project(api, project_id):
+def describe_project(api, logger, project_id):
     try:
-        project = api.get_project(project_id, log=False)
+        project = api.get_project(logger, project_id, log=False)
         if project == None:
             print('project {} does not exist'.format(project_id))
             return None
@@ -92,11 +93,11 @@ def describe_project(api, project_id):
             pass
         return project
     except Exception as err:
-        print(err)
-        pass
-def list_projects(api):
+        logger.warn('an unhandled error occurred in describe_project: {}'.format(err))
+
+def list_projects(api, logger):
     try:
-        projects = api.list_projects(log=False)
+        projects = api.list_projects(logger, log=False)
         table = PrettyTable(['id', 'name', 'type', 'features', 'labels', 'algorithms'])
         for project in projects:
             project_id = project['id']
@@ -112,10 +113,9 @@ def list_projects(api):
         return projects
 
     except Exception as err:
-        print(err)
-        pass
+        logger.warn('an unhandled error occurred in list_projects: {}'.format(err))
 
-def list_algorithms(project):
+def list_algorithms(project, logger):
     try:
         table = PrettyTable(['id', 'backend', 'headers'])
         algorithms = project['algorithms']
@@ -128,16 +128,15 @@ def list_algorithms(project):
         print(table)
         return algorithms
     except Exception as err:
-        print(err)
-        return None
+        logger.warn('an unhandled error occurred in list_algorithms: {}'.format(err))
 
 
-def create_project(api, project_id, project_name=None, problem_type=None, feature_id=None, label_id=None):
+def create_project(api, logger, project_id, project_name=None, problem_type=None, feature_id=None, label_id=None):
     try:
-        features = api.list_features(log=False)
+        features = api.list_features(logger, log=False)
         if features == None:
             return None
-        labels = api.list_labels(log=False)
+        labels = api.list_labels(logger, log=False)
         if labels == None:
             return None
         if project_name == None:
@@ -148,23 +147,22 @@ def create_project(api, project_id, project_name=None, problem_type=None, featur
             feature_id = qcm_features(features)
         if label_id == None:
             label_id = qcm_labels(labels)
-        api.create_project(Project(project_id,project_name, problem_type, feature_id, label_id))
+        api.create_project(logger, Project(project_id,project_name, problem_type, feature_id, label_id))
         print("Ready to start predicting !")
     except Exception as err:
-        print(err)
-        return None
+        logger.warn('an unhandled error occurred in create_project: {}'.format(err))
 
-def update_project(api, project_id):
-    project = api.get_project(project_id, log=False)
+def update_project(api, logger, project_id):
+    project = api.get_project(logger, project_id, log=False)
     if project is not None:
         print('1. Set default algorithm')
         print('2. Set AB testing')
         choice = input('choice: ')
         if choice == '1':
-            list_algorithms(project)
+            list_algorithms(logger, project)
             algorithm_id = input('id of the default algorithm: ')
             policy = DefaultAlgorithmPolicy(algorithm_id)
-            api.update_project(project_id, policy)
+            api.update_project(logger, project_id, policy)
         elif choice == '2':
             weights = []
             for algorithm in project['algorithms']:
@@ -176,12 +174,13 @@ def update_project(api, project_id):
                     print('Not a number, skipping...')
             policy = WeightedAlgorithmPolicy(weights)
             try:
-                return api.update_project(project_id, policy)
-            except Exception:
-                return None
+                return api.update_project(logger, project_id, policy)
+            except Exception as err:
+                logger.warn('an unhandled error occurred in update_project: {}'.format(err))
+                return False 
         else:
             print('choice should be either 1 or 2')
-            return update_project(api, project_id)
+            return update_project(api, logger, project_id)
     else:
         print('Project {} does not exist'.format(project_id))
         return False

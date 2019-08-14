@@ -24,9 +24,10 @@ def qcm(choice_1, choice_2, choice_3):
     else:
         return qcm(choice_1, choice_2, choice_3)
 
-def list_labels(api):
+def list_labels(api, logger):
     try:
-        labels = api.list_labels(log=False)
+        labels = api.list_labels(logger, log=False)
+        logger.debug('server returns labels: {}'.format(labels))
         table = PrettyTable(['Id', 'Type', 'Description', 'oneOf'])
         for label in labels:
             data = label['data']
@@ -43,11 +44,13 @@ def list_labels(api):
         print(table)
         return labels
     except Exception as err:
-        pass
+        logger.warn('An unhandled error occurred in list_labels: {}'.format(err))
+        return None
 
-def describe_label(api, label_id):
+def describe_label(api, logger, label_id):
     try:
-        label = api.get_labels(label_id, log=False)
+        label = api.get_labels(logger, label_id, log=False)
+        logger.debug('server returns label: {}'.format(label))
         data = label['data']
         label_type = data['type']
         label_description = data['description']
@@ -64,7 +67,7 @@ def describe_label(api, label_id):
             print('Label type is unknown')
         return label
     except Exception as err:
-        print(err)
+        logger.warn('an unhandled error occurred in describe_labels: {}'.format(err))
         return None
 
 def get_labels_id():
@@ -91,13 +94,15 @@ def get_label_description():
 
 
 
-def create_labels(api, label_id, label_type=None, label_one_of=None, label_description=None):
+def create_labels(api, logger, label_id, label_type=None, label_one_of=None, label_description=None):
     label_data = get_label_data(label_type, label_one_of, label_description)
+    label_schema = LabelSchema(label_id, label_data)
+    logger.debug('json payload for create_labels: {}'.format(label_schema.to_json()))
     try:
-        api.create_label(LabelSchema(label_id, label_data))
+        api.create_label(logger, label_schema)
     except Exception as err:
-        print(err)
-        print('something did not work')
+        logger.warn('an unhandled error occurred in create_labels: {}'.format(err))
+        return None
 
 def label_build(label_type, label_one_of, label_description):
     return {'type': label_type, 'oneOf': label_one_of, 'description': label_description}
