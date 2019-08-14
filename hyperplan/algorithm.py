@@ -175,9 +175,9 @@ def get_security_config():
     else:
         return SecurityConfig('plain', [])
 
-def create_algorithm(api, algorithm_id):
+def create_algorithm(api, logger, algorithm_id):
     try:
-        projects = list_projects(api)
+        projects = list_projects(api, logger)
         project_ids = [p['id'] for p in projects]
         project_id = get_project_id(project_ids)
         project = api.get_project(project_id, log=False)
@@ -195,5 +195,4 @@ def create_algorithm(api, algorithm_id):
         api.create_algorithm(project_id, algorithm_id, algorithm)
         return algorithm
     except Exception as err:
-        print(err)
-        return None
+        logger.warn('an unhandled error occurred in create_algorithm: {}'.format(err))

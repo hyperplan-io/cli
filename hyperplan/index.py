@@ -90,7 +90,8 @@ def main():
 
 try:
     main()
-except Exception:
+except Exception as err:
+    print('Unhandled error: {}'.format(err))
     try:
         sys.exit(0)
     except:

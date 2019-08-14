@@ -31,7 +31,7 @@ def get_features_id():
         return get_features_id() 
     return feature_id
 
-def list_features(api):
+def list_features(api, logger):
     try:
         table = PrettyTable(['id', 'feature names'])
         features = api.list_features(log=False)
@@ -42,23 +42,26 @@ def list_features(api):
             table.add_row([feature_id, feature_names])
         print(table)
         return features
-    except Exception:
-        pass
+    except Exception as err:
+        logger.warn('an unhandled error occurred in list_features: {}'.format(err))
 
 
-def describe_feature(api, feature_id):
-    table = PrettyTable(['name', 'type', 'dimension', 'description'])
-    features = api.get_features(feature_id, log=False)
-    for data in features['data']:
-        feature_name = data['name']
-        feature_type = data['type']
-        feature_dimension = data['dimension']
-        feature_description = data['description']
-        table.add_row([feature_name, feature_type, feature_dimension, feature_description])
-    print(table)
-    return features
+def describe_feature(api, logger, feature_id):
+    try:
+        table = PrettyTable(['name', 'type', 'dimension', 'description'])
+        features = api.get_features(feature_id, log=False)
+        for data in features['data']:
+            feature_name = data['name']
+            feature_type = data['type']
+            feature_dimension = data['dimension']
+            feature_description = data['description']
+            table.add_row([feature_name, feature_type, feature_dimension, feature_description])
+        print(table)
+        return features
+    except Exception as err:
+        logger.warn('an unhandled error occurred in describe_feature: {}'.format(err))
 
-def create_features(api, feature_id, features=None):
+def create_features(api, logger, feature_id, features=None):
     if features == None:
         table = PrettyTable(['name', 'type', 'dimension', 'description'])
         features = []
@@ -74,13 +77,13 @@ def create_features(api, feature_id, features=None):
             print('saving feature descriptor {}'.format(feature_id))
             try:
                 api.create_feature(FeatureSchema(feature_id, features))
-            except Exception:
-                pass
+            except Exception as err:
+                logger.warn('an unhandled error occurred in create_features: {}'.format(err))
     else:
         try:
             api.create_feature(FeatureSchema(feature_id, features))
-        except Exception:
-            pass
+        except Exception as err:
+            logger.warn('an unhandled error occurred in create_features: {}'.format(err))
 
 def feature_build(feature_name, feature_type, feature_dimension, feature_description):
     return {'name': feature_name, 'type': feature_type, 'dimension': feature_dimension, 'description': feature_description}

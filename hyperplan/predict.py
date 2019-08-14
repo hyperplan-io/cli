@@ -46,7 +46,7 @@ def add_example(api, prediction_id):
         print('Expected y/n')
         return add_example(api, prediction_id)
 
-def predict(api, project_id, features=None, annotate=True, log=True):
+def predict(api, logger, project_id, features=None, annotate=True, log=True):
     try:
         project = api.get_project(project_id, log=False)
         if project == None:

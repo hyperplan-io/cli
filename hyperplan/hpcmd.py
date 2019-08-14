@@ -7,6 +7,8 @@ from hyperplan.labels_descriptors import create_labels, describe_label, list_lab
 from hyperplan.project import create_project, list_projects, update_project, describe_project
 from hyperplan.algorithm import create_algorithm
 from hyperplan.predict import predict
+import logging
+
 
 class HyperplanPrompt(Cmd):
     prompt = 'hyperplan> '
@@ -14,7 +16,9 @@ class HyperplanPrompt(Cmd):
     def __init__(self, api):
         Cmd.__init__(self)
         self.api = api
-        self.debug = False
+        self.logger = logging.getLogger()
+        self.logger.setLevel(level=logging.DEBUG)
+
     def do_exit(self, inp):
         print("Bye")
         raise Exception('')
@@ -28,16 +32,24 @@ class HyperplanPrompt(Cmd):
                 if i.startswith(text)]
     def help_debug(self):
         print('debug requires true or false')
-    def do_debug(self, inp):
+    def do_loglevel(self, inp):
         args = inp.split(' ')
         if len(args) > 0 and args[0] != '':
             arg = args[0]
-            if arg.lower() == 'true':
-                self.debug = True
-            elif arg.lower() == 'false':
-                self.debug = False 
+            if arg.lower() == 'error':
+                self.logger.setLevel(level=logging.ERROR)
+                print('log level updated')
+            elif arg.lower() == 'warn':
+                self.logger.setLevel(level=logging.WARN)
+                print('log level updated')
+            elif arg.lower() == 'info':
+                self.logger.setLevel(level=logging.INFO)
+                print('log level updated')
+            elif arg.lower() == 'debug':
+                self.logger.setLevel(level=logging.DEBUG)
+                print('log level updated')
             else:
-                print('{} is not a boolean'.format(arg))
+                print('{} is not a valid log level'.format(arg))
         else:
             self.help_debug()
 
@@ -46,13 +58,13 @@ class HyperplanPrompt(Cmd):
         if len(args) > 0 and args[0] != '':
             arg = args[0]
             if arg == 'features':
-                list_features(self.api)
+                list_features(self.api, self.logger)
             elif arg == 'labels':
-                list_labels(self.api)
+                list_labels(self.api, self.logger)
             elif arg == 'algorithms':
                 pass
             elif arg == 'projects':
-                list_projects(self.api)
+                list_projects(self.api, self.logger)
             else:
                 print('Unknown argument {}'.format(arg))
         else:
@@ -89,13 +101,13 @@ class HyperplanPrompt(Cmd):
             arg = args[0]
             entity_id = args[1]
             if arg == 'feature':
-                create_features(self.api, entity_id)
+                create_features(self.api, self.logger, entity_id)
             elif arg == 'label':
-                create_labels(self.api, entity_id)
+                create_labels(self.api, self.logger, entity_id)
             elif arg == 'algorithm':
-                create_algorithm(self.api, entity_id)
+                create_algorithm(self.api, self.logger, entity_id)
             elif arg == 'project':
-                create_project(self.api, entity_id)
+                create_project(self.api, self.logger, entity_id)
             else:
                 print('Unknown argument {}'.format(arg))
         elif len(args) == 1 and args[0] != '':
@@ -107,7 +119,7 @@ class HyperplanPrompt(Cmd):
         if len(args) > 1 and args[0] != '' and args[1] != '':
             arg = args[0]
             entity_id = args[1]
-            update_project(self.api, entity_id)
+            update_project(self.api, self.logger, entity_id)
         else:
             self.help_update()
 
@@ -118,13 +130,13 @@ class HyperplanPrompt(Cmd):
             arg = args[0]
             entity_id = args[1]
             if arg == 'feature':
-               describe_feature(self.api, entity_id)
+               describe_feature(self.api, self.logger, entity_id)
             elif arg == 'label':
-               describe_label(self.api, entity_id)
+               describe_label(self.api, self.logger, entity_id)
             elif arg == 'algorithm':
                 pass
             elif arg == 'project':
-                describe_project(self.api, entity_id)
+                describe_project(self.api, self.logger, entity_id)
             else:
                 print('Unknown argument {}'.format(arg))
         else:
@@ -135,7 +147,7 @@ class HyperplanPrompt(Cmd):
         args = inp.split(' ')
         if len(args) > 0 and args[0] != '':
             project_id = args[0]
-            prediction = predict(self.api, project_id, log=True)
+            prediction = predict(self.api, self.logger, project_id, log=True)
         else:
             self.help_predict()
 

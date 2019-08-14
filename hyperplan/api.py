@@ -324,6 +324,7 @@ class Api():
             elif response.status_code == 400:
                 for error in response.json():
                     print('{} : {}'.format(error['class'], error['message']))
+            return False
         except (RemoteDisconnected, ConnectionError):
             self.remote_disconnected()
             return False
