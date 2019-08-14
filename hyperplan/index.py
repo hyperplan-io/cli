@@ -73,7 +73,8 @@ def prompt_credentials():
 
 def help():
     print('hyperplan -loglevel <loglevel>')
-def main(argv):
+def main():
+    argv = sys.argv[1:]
     try:
         opts, args = getopt.getopt(argv,"hl:",["loglevel=", "help"])
     except getopt.GetoptError:
@@ -122,7 +123,7 @@ def main(argv):
 
 if __name__ == "__main__":
     try:
-        main(sys.argv[1:])
+        main()
     except Exception as err:
         print('Unhandled error: {}'.format(err))
         try:
