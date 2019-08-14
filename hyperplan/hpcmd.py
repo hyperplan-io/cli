@@ -4,7 +4,7 @@ from cmd import Cmd
 from hyperplan.api import Api
 from hyperplan.features_descriptors import create_features, describe_feature, list_features
 from hyperplan.labels_descriptors import create_labels, describe_label, list_labels
-from hyperplan.project import create_project, list_projects
+from hyperplan.project import create_project, list_projects, update_project, describe_project
 from hyperplan.algorithm import create_algorithm
 from hyperplan.predict import predict
 
@@ -45,9 +45,16 @@ class HyperplanPrompt(Cmd):
 
     def help_describe(self):
         print('describe requires the entity type (feature, label, algorithm, project) and the entity id')
-    def help_create(self):
-        print('create requires an argument: feature, label, algorithm, project and the id')
-        print('example: create project myProject')
+    def help_create(self, example=None):
+        if example == None:
+            print('create requires an argument: feature, label, algorithm, project and the id')
+            print('example: create feature myFeature')
+        else:
+            print('create requires an argument: feature, label, algorithm, project and the id')
+            print('example: create {} my{}'.format(example, example.capitalize()))
+    def help_update(self):
+        print('update requires an argument: project and the id')
+        print('example: update project myProject')
 
     def complete_describe(self, text, line, begidx, endidx):
         return [i
@@ -56,6 +63,10 @@ class HyperplanPrompt(Cmd):
     def complete_create(self, text, line, begidx, endidx):
         return [i
             for i in ('feature', 'label', 'algorithm', 'project')
+            if i.startswith(text)]
+    def complete_update(self, text, line, begidx, endidx):
+        return [i
+            for i in (['project'])
             if i.startswith(text)]
     def do_create(self, inp):
         args = inp.split(' ')
@@ -72,8 +83,20 @@ class HyperplanPrompt(Cmd):
                 create_project(self.api, entity_id)
             else:
                 print('Unknown argument {}'.format(arg))
+        elif len(args) == 1 and args[0] != '':
+            self.help_create(example=args[0])
         else:
-            self.help_create()
+            self.help_create(example=None)
+    def do_update(self, inp):
+        args = inp.split(' ')
+        if len(args) > 1 and args[0] != '' and args[1] != '':
+            arg = args[0]
+            entity_id = args[1]
+            update_project(self.api, entity_id)
+        else:
+            self.help_update()
+
+
     def do_describe(self, inp):
         args = inp.split(' ')
         if len(args) > 1 and args[0] != ''and args[1] != '':
@@ -86,8 +109,7 @@ class HyperplanPrompt(Cmd):
             elif arg == 'algorithm':
                 pass
             elif arg == 'project':
-                project = self.api.get_project(entity_id)
-                print(project)
+                describe_project(self.api, entity_id)
             else:
                 print('Unknown argument {}'.format(arg))
         else:

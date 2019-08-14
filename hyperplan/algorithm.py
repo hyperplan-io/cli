@@ -1,3 +1,4 @@
+from hyperplan.project import list_projects
 
 class TensorFlowFeaturesTransformer():
     def __init__(self, signature_name, fields):
@@ -30,26 +31,23 @@ class Backend():
     pass
 
 class TensorFlowClassificationBackend(Backend):
-    def __init__(self, host, port, model_name, model_version, features_transformer, labels_transformer):
-        self.host = host
-        self.port = port
+    def __init__(self, root_path, model_name, model_version, features_transformer, labels_transformer):
+        self.root_path = root_path 
         self.model_name = model_name
         self.model_version = model_version
         self.features_transformer = features_transformer
         self.labels_transformer = labels_transformer
     def to_json(self):
-        return {'class': 'TensorFlowClassificationBackend', 'host': self.host, 'port': self.port, 'modelName': self.model_name, 'modelVersion': self.model_version, 'featuresTransformer': self.features_transformer.to_json(), 'labelsTransformer': self.labels_transformer.to_json()}
+        return {'class': 'TensorFlowClassificationBackend', 'rootPath': self.root_path, 'model': self.model_name, 'modelVersion': self.model_version, 'featuresTransformer': self.features_transformer.to_json(), 'labelsTransformer': self.labels_transformer.to_json()}
 
 class TensorFlowRegressionBackend(Backend):
-    def __init__(self, host, port, model_name, model_version, features_transformer, labels_transformer):
-        self.host = host
-        self.port = port
+    def __init__(self, root_path, model_name, model_version, features_transformer):
+        self.root_path = root_path 
         self.model_name = model_name
         self.model_version = model_version
         self.features_transformer = features_transformer
-        self.labels_transformer = labels_transformer
     def to_json(self):
-        return {'class': 'TensorFlowClassificationBackend', 'host': self.host, 'port': self.port, 'modelName': self.model_name, 'modelVersion': self.model_version, 'featuresTransformer': self.features_transformer.to_json()}
+        return {'class': 'TensorFlowClassificationBackend', 'rootPath': self.root_path, 'model': self.model_name, 'modelVersion': self.model_version, 'featuresTransformer': self.features_transformer.to_json()}
 
 class RasaNluClassificationBackend(Backend):
     def __init__(self, root_path, features_transformer):
@@ -59,19 +57,12 @@ class RasaNluClassificationBackend(Backend):
         return {'class': 'TensorFlowClassificationBackend', 'rootPath': self.root_path, 'featuresTransformer': self.features_transformer.to_json(), 'labelsTransformer': {}}
 
 class Algorithm():
-    def __init__(self, algorithm_id, project_id, backend, security):
+    def __init__(self, backend, security):
         self.backend = backend
         self.security = security
 
     def to_json(self):
         return {"backend": self.backend.to_json(), "security": self.security.to_json()}
-
-def get_algorithm_id():
-    algorithm_id = input("id(alphanumeric): ")
-    if not algorithm_id.isalnum():
-        print("algorithm id should be alphanumeric") 
-        return get_algorithm_id()
-    return algorithm_id
 
 def get_project_id(projects):
     project_id = input("project: ")
@@ -108,7 +99,6 @@ def get_tensorflow_labels_transformer(fields):
         fields_mapping = {}
         for field in fields:
             fields_mapping.update({ field: field })
-        print(fields_mapping)
         return TensorFlowLabelsTransformer(fields_mapping)
     elif choice == '2':
         fields_mapping = {}
@@ -120,16 +110,8 @@ def get_tensorflow_labels_transformer(fields):
         print('Expected choice 1 or 2')
         return get_tensorflow_labels_transformer(fields)
 
-def get_port():
-    port = input('port: ')
-    if not port.isdigit():
-        print('port should be an integer')
-        return get_port()
-    return port
-
 def get_tensorflow_classification_backend(project):
-    host = input('host: ')
-    port = get_port()
+    root_path = input('root path: ')
     model_name = input('model name: ')
     model_version = input('model version: ')
     features = [feature['name'] for feature in project['configuration']['features']['data']]
@@ -138,23 +120,26 @@ def get_tensorflow_classification_backend(project):
     if project['configuration']['labels']['data']['type'] == 'oneOf':
         labels = [label for label in project['configuration']['labels']['data']['oneOf']]
         labels_transformer = get_tensorflow_labels_transformer(labels)
-    return TensorFlowClassificationBackend(host, port, model_name, model_version, features_transformer, labels_transformer) 
+    return TensorFlowClassificationBackend(root_path, model_name, model_version, features_transformer, labels_transformer) 
 
 def get_tensorflow_regression_backend(project):
-    pass
+    root_path = input('root path: ')
+    model_name = input('model name: ')
+    model_version = input('model version: ')
+    features = [feature['name'] for feature in project['configuration']['features']['data']]
+    features_transformer = get_tensorflow_features_transformer(features)
+    return TensorFlowRegressionBackend(root_path, model_name, model_version, features_transformer) 
 
 def get_rasa_nlu_classification_backend(project):
     pass
 
 def get_classification_backend(project):
     print('1. TensorFlow Serving')
-    print('3. Rasa Nlu')
+    print('2. Rasa Nlu')
     choice = input('Backend: ')
     if choice == '1':
         return get_tensorflow_classification_backend(project)
     elif choice == '2':
-        return get_tensorflow_regression_backend(project)
-    elif choice == '3':
         return get_rasa_nlu_classification_backend(project)
     else:
         print('Unexpected choice {}'.format(choice))
@@ -192,12 +177,10 @@ def get_security_config():
 
 def create_algorithm(api, algorithm_id):
     try:
-        print('===== Project =====')
-        projects = api.list_projects(log=True)
-        print('===== ======= =====')
+        projects = list_projects(api)
         project_ids = [p['id'] for p in projects]
         project_id = get_project_id(project_ids)
-        project = api.get_project(project_id, log=True)
+        project = api.get_project(project_id, log=False)
         problem_type = project['problem']
         backend = None
         if problem_type == 'classification':
@@ -211,5 +194,6 @@ def create_algorithm(api, algorithm_id):
         algorithm = Algorithm(backend, security_config) 
         api.create_algorithm(project_id, algorithm_id, algorithm)
         return algorithm
-    except Exception:
+    except Exception as err:
+        print(err)
         return None
