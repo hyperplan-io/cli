@@ -314,7 +314,7 @@ class Api():
         try:
             self.get_token_if_needed()
             response = requests.patch(
-                '{}/project/{}'.format(self.root_api_url, project_id),
+                '{}/projects/{}'.format(self.root_api_url, project_id),
                 json = {'policy': policy.to_json()},
                 headers = { 'Authorization': 'Bearer {}'.format(self.token)}
             )

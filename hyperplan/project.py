@@ -1,5 +1,18 @@
 from prettytable import PrettyTable
 
+class DefaultAlgorithmPolicy():
+    def __init__(self, default_algorithm_id):
+        self.default_algorithm_id = default_algorithm_id
+    def to_json(self):
+        return { 'class': 'DefaultAlgorithm', 'algorithmId': self.default_algorithm_id }
+
+class WeightedAlgorithmPolicy():
+    def __init__(self, weights):
+        self.weights = weights
+    def to_json(self):
+        weights = [{'algorithmId': w[0], 'weight': w[1] }for w in self.weights]
+        return { 'class': 'WeightedAlgorithm', 'weights': weights}
+
 class Project():
 
     def __init__(self, project_id, project_name, problem_type, feature_id, label_id):
@@ -49,7 +62,10 @@ def get_problem_type():
 def describe_project(api, project_id):
     try:
         project = api.get_project(project_id, log=False)
-        table = PrettyTable(['id', 'name', 'type', 'features', 'labels', 'algorithms'])
+        if project == None:
+            print('project {} does not exist'.format(project_id))
+            return None
+        project_table = PrettyTable(['id', 'name', 'type', 'features', 'labels', 'algorithms'])
         project_id = project['id']
         project_name = project['name']
         project_problem = project['problem']
@@ -58,8 +74,22 @@ def describe_project(api, project_id):
         if project_problem == 'classification':
             project_labels = project['configuration']['labels']['id']
         project_algorithms = len(project['algorithms'])
-        table.add_row([project_id, project_name, project_problem, project_features, project_labels, project_algorithms])
-        print(table)
+        project_table.add_row([project_id, project_name, project_problem, project_features, project_labels, project_algorithms])
+        print(project_table)
+        policy = project['policy']
+        policy_class = policy['class']
+        algorithms_table = PrettyTable(['id', 'weight'])
+        if policy_class == 'DefaultAlgorithm':
+            default_algorithm_id = policy['algorithmId']
+            algorithms_table.add_row([default_algorithm_id, 1])
+            print(algorithms_table)
+        elif policy_class == 'WeightedAlgorithm':
+            weights = policy['weights']
+            for w in weights:
+                algorithms_table.add_row([w['algorithmId'], w['weight']])
+            print(algorithms_table)
+        else:
+            pass
         return project
     except Exception as err:
         print(err)
@@ -87,7 +117,6 @@ def list_projects(api):
 
 def list_algorithms(project):
     try:
-        print(project['algorithms'])
         table = PrettyTable(['id', 'backend', 'headers'])
         algorithms = project['algorithms']
         for algorithm in algorithms:
@@ -124,6 +153,7 @@ def create_project(api, project_id, project_name=None, problem_type=None, featur
     except Exception as err:
         print(err)
         return None
+
 def update_project(api, project_id):
     project = api.get_project(project_id, log=False)
     if project is not None:
@@ -133,9 +163,22 @@ def update_project(api, project_id):
         if choice == '1':
             list_algorithms(project)
             algorithm_id = input('id of the default algorithm: ')
+            policy = DefaultAlgorithmPolicy(algorithm_id)
+            api.update_project(project_id, policy)
         elif choice == '2':
+            weights = []
             for algorithm in project['algorithms']:
-                weight = input('algorithm {}, weight: '.format(algorithm['id']))
+                algorithm_id = algorithm['id']
+                weight = input('algorithm {}, weight: '.format(algorithm_id))
+                try:
+                    weights.append([algorithm_id, float(weight)])
+                except ValueError:
+                    print('Not a number, skipping...')
+            policy = WeightedAlgorithmPolicy(weights)
+            try:
+                return api.update_project(project_id, policy)
+            except Exception:
+                return None
         else:
             print('choice should be either 1 or 2')
             return update_project(api, project_id)
