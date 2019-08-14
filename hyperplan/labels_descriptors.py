@@ -26,7 +26,7 @@ def qcm(choice_1, choice_2, choice_3):
 
 def list_labels(api, logger):
     try:
-        labels = api.list_labels(log=False)
+        labels = api.list_labels(logger, log=False)
         logger.debug('server returns labels: {}'.format(labels))
         table = PrettyTable(['Id', 'Type', 'Description', 'oneOf'])
         for label in labels:
@@ -49,7 +49,7 @@ def list_labels(api, logger):
 
 def describe_label(api, logger, label_id):
     try:
-        label = api.get_labels(label_id, log=False)
+        label = api.get_labels(logger, label_id, log=False)
         logger.debug('server returns label: {}'.format(label))
         data = label['data']
         label_type = data['type']
@@ -99,7 +99,7 @@ def create_labels(api, logger, label_id, label_type=None, label_one_of=None, lab
     label_schema = LabelSchema(label_id, label_data)
     logger.debug('json payload for create_labels: {}'.format(label_schema.to_json()))
     try:
-        api.create_label(label_schema)
+        api.create_label(logger, label_schema)
     except Exception as err:
         logger.warn('an unhandled error occurred in create_labels: {}'.format(err))
         return None

@@ -34,7 +34,7 @@ def get_features_id():
 def list_features(api, logger):
     try:
         table = PrettyTable(['id', 'feature names'])
-        features = api.list_features(log=False)
+        features = api.list_features(logger, log=False)
         for feature in features:
             feature_id = feature['id']
             feature_data = feature['data']
@@ -49,7 +49,7 @@ def list_features(api, logger):
 def describe_feature(api, logger, feature_id):
     try:
         table = PrettyTable(['name', 'type', 'dimension', 'description'])
-        features = api.get_features(feature_id, log=False)
+        features = api.get_features(logger, feature_id, log=False)
         for data in features['data']:
             feature_name = data['name']
             feature_type = data['type']
@@ -76,12 +76,12 @@ def create_features(api, logger, feature_id, features=None):
         if result == QCMResult.CLOSE_AND_SAVE:
             print('saving feature descriptor {}'.format(feature_id))
             try:
-                api.create_feature(FeatureSchema(feature_id, features))
+                api.create_feature(logger, FeatureSchema(feature_id, features))
             except Exception as err:
                 logger.warn('an unhandled error occurred in create_features: {}'.format(err))
     else:
         try:
-            api.create_feature(FeatureSchema(feature_id, features))
+            api.create_feature(logger, FeatureSchema(feature_id, features))
         except Exception as err:
             logger.warn('an unhandled error occurred in create_features: {}'.format(err))
 

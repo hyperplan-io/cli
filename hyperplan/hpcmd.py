@@ -13,17 +13,16 @@ import logging
 class HyperplanPrompt(Cmd):
     prompt = 'hyperplan> '
     intro = "hyperplan-cli, Type ? to list commands"
-    def __init__(self, api):
+    def __init__(self, api, logger):
         Cmd.__init__(self)
         self.api = api
-        self.logger = logging.getLogger()
-        self.logger.setLevel(level=logging.DEBUG)
+        self.logger = logger
 
     def do_exit(self, inp):
         print("Bye")
         raise Exception('')
     def do_login(self, inp):
-        self.api.authenticate()
+        self.api.authenticate(self.logger)
     def help_list(self):
         print('list requires an argument: features, labels, algorithms, projects')
     def complete_list(self, text, line, begidx, endidx):
@@ -38,15 +37,19 @@ class HyperplanPrompt(Cmd):
             arg = args[0]
             if arg.lower() == 'error':
                 self.logger.setLevel(level=logging.ERROR)
+                logging.basicConfig(level=logging.ERROR)
                 print('log level updated')
             elif arg.lower() == 'warn':
                 self.logger.setLevel(level=logging.WARN)
+                logging.basicConfig(level=logging.WARN)
                 print('log level updated')
             elif arg.lower() == 'info':
                 self.logger.setLevel(level=logging.INFO)
+                logging.basicConfig(level=logging.INFO)
                 print('log level updated')
             elif arg.lower() == 'debug':
                 self.logger.setLevel(level=logging.DEBUG)
+                logging.basicConfig(level=logging.DEBUG)
                 print('log level updated')
             else:
                 print('{} is not a valid log level'.format(arg))

@@ -35,20 +35,20 @@ def get_feature_value(feature_name, feature_type, feature_dimension, feature_des
     except Exception as err:
         print(err)
 
-def add_example(api, prediction_id):
+def add_example(api, logger, prediction_id):
     reply = input('Do you want to add an example ? (y/n)')
     if reply == 'y':
         label = input('label: ') 
-        return api.add_example(prediction_id, label)
+        return api.add_example(logger, prediction_id, label)
     elif reply == 'n':
         return None
     else:
         print('Expected y/n')
-        return add_example(api, prediction_id)
+        return add_example(api, logger, prediction_id)
 
 def predict(api, logger, project_id, features=None, annotate=True, log=True):
     try:
-        project = api.get_project(project_id, log=False)
+        project = api.get_project(logger, project_id, log=False)
         if project == None:
             print('project {} does not exist'.format(project_id))
             return None
@@ -62,7 +62,7 @@ def predict(api, logger, project_id, features=None, annotate=True, log=True):
                 feature_dimension = descriptor['dimension']
                 feature_description = descriptor['description']
                 features.update({ feature_name: get_feature_value(feature_name, feature_type, feature_dimension, feature_description) })
-        prediction = api.predict(project['id'], features)
+        prediction = api.predict(logger, project['id'], features)
         labels = prediction['labels']
         print('\nalgorithm used: {}'.format(prediction['algorithmId']))
         if problem_type  == 'classification':
@@ -75,7 +75,7 @@ def predict(api, logger, project_id, features=None, annotate=True, log=True):
                 table.add_row([label['label']])
         print(table)
         if annotate:
-            add_example(api, prediction['id'])
+            add_example(api, logger, prediction['id'])
         return prediction
     except Exception as err:
         print(err)

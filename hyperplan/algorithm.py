@@ -180,7 +180,7 @@ def create_algorithm(api, logger, algorithm_id):
         projects = list_projects(api, logger)
         project_ids = [p['id'] for p in projects]
         project_id = get_project_id(project_ids)
-        project = api.get_project(project_id, log=False)
+        project = api.get_project(logger, project_id, log=False)
         problem_type = project['problem']
         backend = None
         if problem_type == 'classification':
@@ -192,7 +192,7 @@ def create_algorithm(api, logger, algorithm_id):
             return None
         security_config = get_security_config()
         algorithm = Algorithm(backend, security_config) 
-        api.create_algorithm(project_id, algorithm_id, algorithm)
+        api.create_algorithm(logger, project_id, algorithm_id, algorithm)
         return algorithm
     except Exception as err:
         logger.warn('an unhandled error occurred in create_algorithm: {}'.format(err))
