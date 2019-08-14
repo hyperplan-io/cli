@@ -4,7 +4,7 @@ services:
     image:  hyperplan/server:latest
     ports:    
      - "8080:8080"    
-    restart: always    
+    restart: unless-stopped
     environment:
       - APP_SECRET=replacewithrandomsecret
       - ADMIN_USERNAME=admin
@@ -14,11 +14,6 @@ services:
       - POSTGRESQL_DATABASE=postgres
       - POSTGRESQL_USERNAME=postgres
       - POSTGRESQL_PASSWORD=postgres
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/_health"]
-      interval: 10s 
-      timeout: 5s
-      retries: 5
   postgres:    
     image: "postgres:latest"    
     environment:    

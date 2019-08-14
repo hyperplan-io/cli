@@ -5,15 +5,15 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name='hyperplan-cli',  
-    version='0.0.1',
+    version='0.0.1-rc2',
     author="Antoine Sauray",
     author_email="antoine@hyperplan.io",
     description="A Hyperplan cli tool to help you manage your Hyperplan server",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/hyperplan/cli",
-    package_dir={'': 'src'},
-    packages=setuptools.find_namespace_packages(where='src'),
+    package_dir={'': '.'},
+    packages=setuptools.find_namespace_packages(where='.'),
     entry_points= {
         'console_scripts': [
             'hyperplan = hyperplan:main'
