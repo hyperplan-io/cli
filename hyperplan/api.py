@@ -310,6 +310,25 @@ class Api():
             self.remote_disconnected()
             return False
 
+    def delete_project(self, logger, project_id):
+        try:
+            self.get_token_if_needed(logger)
+            response = requests.delete(
+                '{}/projects/{}'.format(self.root_api_url, project_id),
+                headers = { 'Authorization': 'Bearer {}'.format(self.token)}
+            )
+            self.handle_status_code(logger, response.status_code)
+            if response.status_code == 200:
+                return True
+            elif response.status_code == 404:
+                print('Project {} does not exist'.format(project_id))
+                return False
+            else:
+                return False
+        except (RemoteDisconnected, ConnectionError):
+            self.remote_disconnected()
+            return False
+
     def update_project(self, logger, project_id, policy):
         try:
             self.get_token_if_needed(logger)

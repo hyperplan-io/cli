@@ -187,6 +187,12 @@ def create_project(api, logger, project_id, project_name=None, problem_type=None
     except Exception as err:
         logger.warn('an unhandled error occurred in create_project: {}'.format(err))
 
+def delete_project(api, logger, project_id):
+    try:
+        api.delete_project(logger, project_id)
+    except Exception as err:
+        logger.warn('an unhandled error occurred in delete_project: {}'.format(err))
+
 def update_project(api, logger, project_id):
     project = api.get_project(logger, project_id, log=False)
     if project is not None:

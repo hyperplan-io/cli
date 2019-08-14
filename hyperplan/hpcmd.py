@@ -4,7 +4,7 @@ from cmd import Cmd
 from hyperplan.api import Api
 from hyperplan.features_descriptors import create_features, describe_feature, list_features
 from hyperplan.labels_descriptors import create_labels, describe_label, list_labels
-from hyperplan.project import create_project, list_projects, update_project, describe_project
+from hyperplan.project import create_project, list_projects, update_project, describe_project, delete_project
 from hyperplan.algorithm import create_algorithm
 from hyperplan.predict import predict
 import logging
@@ -126,6 +126,14 @@ class HyperplanPrompt(Cmd):
         else:
             self.help_update()
 
+    def do_delete(self, inp):
+        args = inp.split(' ')
+        if len(args) > 1 and args[0] != '' and args[1] != '':
+            arg = args[0]
+            entity_id = args[1]
+            delete_project(self.api, self.logger, entity_id)
+        else:
+            self.help_delete()
 
     def do_describe(self, inp):
         args = inp.split(' ')
