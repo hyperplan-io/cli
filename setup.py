@@ -12,8 +12,8 @@ setuptools.setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/hyperplan/cli",
-    package_dir={'': 'src'},
-    packages=setuptools.find_namespace_packages(where='src'),
+    package_dir={'': '.'},
+    packages=setuptools.find_namespace_packages(where='.'),
     entry_points= {
         'console_scripts': [
             'hyperplan = hyperplan:main'
