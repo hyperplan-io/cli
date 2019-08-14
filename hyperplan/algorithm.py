@@ -60,13 +60,11 @@ class RasaNluClassificationBackend(Backend):
 
 class Algorithm():
     def __init__(self, algorithm_id, project_id, backend, security):
-        self.algorithm_id= algorithm_id 
-        self.project_id = project_id 
         self.backend = backend
         self.security = security
 
     def to_json(self):
-        return {'id': self.algorithm_id, 'projectId': self.project_id, "backend": self.backend.to_json(), "security": self.security.to_json()}
+        return {"backend": self.backend.to_json(), "security": self.security.to_json()}
 
 def get_algorithm_id():
     algorithm_id = input("id(alphanumeric): ")
@@ -210,8 +208,8 @@ def create_algorithm(api, algorithm_id):
             print('Unexpected project type: {}'.format(problem_type))
             return None
         security_config = get_security_config()
-        algorithm = Algorithm(algorithm_id, project_id, backend, security_config) 
-        api.create_algorithm(algorithm)
+        algorithm = Algorithm(backend, security_config) 
+        api.create_algorithm(project_id, algorithm_id, algorithm)
         return algorithm
     except Exception:
         return None

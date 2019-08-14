@@ -46,18 +46,19 @@ def add_example(api, prediction_id):
         print('Expected y/n')
         return add_example(api, prediction_id)
 
-def predict(api, project_id, log=True):
+def predict(api, project_id, features=None, annotate=True, log=True):
     try:
         project = api.get_project(project_id, log=False)
         problem_type = project['problem']
         features_descriptor = project['configuration']['features']['data']
-        features = {}
-        for descriptor in features_descriptor:
-            feature_name = descriptor['name']
-            feature_type = descriptor['type']
-            feature_dimension = descriptor['dimension']
-            feature_description = descriptor['description']
-            features.update({ feature_name: get_feature_value(feature_name, feature_type, feature_dimension, feature_description) })
+        if features == None:
+            features = {}
+            for descriptor in features_descriptor:
+                feature_name = descriptor['name']
+                feature_type = descriptor['type']
+                feature_dimension = descriptor['dimension']
+                feature_description = descriptor['description']
+                features.update({ feature_name: get_feature_value(feature_name, feature_type, feature_dimension, feature_description) })
         prediction = api.predict(project['id'], features)
         labels = prediction['labels']
         print('\nalgorithm used: {}'.format(prediction['algorithmId']))
@@ -70,7 +71,9 @@ def predict(api, project_id, log=True):
             for label in labels:
                 table.add_row([label['label']])
         print(table)
-        add_example(api, prediction['id'])
+        if annotate:
+            add_example(api, prediction['id'])
+        return prediction
     except Exception as err:
         print(err)
         pass
