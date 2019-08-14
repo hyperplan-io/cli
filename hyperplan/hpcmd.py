@@ -14,6 +14,7 @@ class HyperplanPrompt(Cmd):
     def __init__(self, api):
         Cmd.__init__(self)
         self.api = api
+        self.debug = False
     def do_exit(self, inp):
         print("Bye")
         raise Exception('')
@@ -25,7 +26,21 @@ class HyperplanPrompt(Cmd):
         return [i
                 for i in ('features', 'labels', 'algorithms', 'projects')
                 if i.startswith(text)]
-                    
+    def help_debug(self):
+        print('debug requires true or false')
+    def do_debug(self, inp):
+        args = inp.split(' ')
+        if len(args) > 0 and args[0] != '':
+            arg = args[0]
+            if arg.lower() == 'true':
+                self.debug = True
+            elif arg.lower() == 'false':
+                self.debug = False 
+            else:
+                print('{} is not a boolean'.format(arg))
+        else:
+            self.help_debug()
+
     def do_list(self, inp):
         args = inp.split(' ')
         if len(args) > 0 and args[0] != '':
