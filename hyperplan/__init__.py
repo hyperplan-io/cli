@@ -10,3 +10,4 @@ from hyperplan.label_schema import *
 from hyperplan.predict import *
 from hyperplan.project import *
 from hyperplan.qcm_result import *
+from hyperplan.index import main
