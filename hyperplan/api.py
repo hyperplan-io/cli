@@ -113,8 +113,8 @@ class Api():
                 headers = { 'Authorization': 'Bearer {}'.format(self.token)}
             )
             self.handle_status_code(logger, response.status_code)
-            if response.status_code == 200:
-                print('success')
+            if response.status_code == 201:
+                print('Successfully created feature')
             elif response.status_code == 400:
                 for error in response.json():
                     print('{} : {}'.format(error['class'], error['message']))
@@ -132,8 +132,8 @@ class Api():
                 headers = { 'Authorization': 'Bearer {}'.format(self.token)}
             )
             self.handle_status_code(logger, response.status_code)
-            if response.status_code == 200:
-                print('success')
+            if response.status_code == 201:
+                print('Successfully created label')
             elif response.status_code == 400:
                 for error in response.json():
                     print('{} : {}'.format(error['class'], error['message']))
@@ -150,8 +150,8 @@ class Api():
                 headers = { 'Authorization': 'Bearer {}'.format(self.token)}
             )
             self.handle_status_code(logger, response.status_code)
-            if response.status_code == 200:
-                print('success')
+            if response.status_code == 201:
+                print('Successfully created algorithm')
             elif response.status_code == 400:
                 for error in response.json():
                     print('{} : {}'.format(error['class'], error['message']))
@@ -169,8 +169,8 @@ class Api():
                 headers = { 'Authorization': 'Bearer {}'.format(self.token)}
             )
             self.handle_status_code(logger, response.status_code)
-            if response.status_code == 200:
-                print('success')
+            if response.status_code == 201:
+                print('Successfully created project')
             elif response.status_code == 400:
                 for error in response.json():
                     print('{} : {}'.format(error['class'], error['message']))
@@ -264,6 +264,7 @@ class Api():
             )
             self.handle_status_code(logger, response.status_code)
             if response.status_code == 200:
+                print('Successfully deleted features {}'.format(features_id))
                 return True
             elif response.status_code == 404:
                 print('Feature {} does not exist'.format(features_id))
@@ -283,6 +284,7 @@ class Api():
             )
             self.handle_status_code(logger, response.status_code)
             if response.status_code == 200:
+                print('Successfully deleted labels {}'.format(labels_id))
                 return True
             elif response.status_code == 404:
                 print('Label {} does not exist'.format(labels_id))
@@ -300,9 +302,30 @@ class Api():
             )
             self.handle_status_code(logger, response.status_code)
             if response.status_code == 200:
+                print('Successfully deleted algorithm {}'.format(algorithm_id))
                 return True
             elif response.status_code == 404:
                 print('Algorithm {} does not exist in project {}'.format(algorithm_id, project_id))
+                return False
+            else:
+                return False
+        except (RemoteDisconnected, ConnectionError):
+            self.remote_disconnected()
+            return False
+
+    def delete_project(self, logger, project_id):
+        try:
+            self.get_token_if_needed(logger)
+            response = requests.delete(
+                '{}/projects/{}'.format(self.root_api_url, project_id),
+                headers = { 'Authorization': 'Bearer {}'.format(self.token)}
+            )
+            self.handle_status_code(logger, response.status_code)
+            if response.status_code == 200:
+                print('Successfully deleted project {}'.format(project_id))
+                return True
+            elif response.status_code == 404:
+                print('Project {} does not exist'.format(project_id))
                 return False
             else:
                 return False

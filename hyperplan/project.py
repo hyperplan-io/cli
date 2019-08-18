@@ -16,15 +16,20 @@ class WeightedAlgorithmPolicy():
 
 class Project():
 
-    def __init__(self, project_id, project_name, problem_type, feature_id, label_id):
+    def __init__(self, project_id, project_name, problem_type, feature_id, label_id, project_topic):
         self.project_id = project_id
         self.project_name = project_name
         self.problem_type = problem_type
         self.feature_id = feature_id 
         self.label_id = label_id 
+        self.project_topic = project_topic
 
     def to_json(self):
-        return {'id': self.project_id, 'name': self.project_name, "problem": self.problem_type, "featuresId": self.feature_id, "labelsId": self.label_id}
+        if self.project_topic == None:
+            return {'id': self.project_id, 'name': self.project_name, "problem": self.problem_type, "featuresId": self.feature_id, "labelsId": self.label_id}
+        else:
+            return {'id': self.project_id, 'name': self.project_name, "problem": self.problem_type, "featuresId": self.feature_id, "labelsId": self.label_id, "topic": self.project_topic}
+
 
 def get_project_id():
     project_id = input("id(alphanumeric): ")
@@ -35,6 +40,21 @@ def get_project_id():
 
 def get_project_name():
     return input("name: ")
+
+def get_project_topic():
+    reply = input("publish data stream ? (y/n)")
+    if reply.lower() == 'y':
+        topic = input("topic: ") 
+        if topic == '':
+            print('topic cannot be empty')
+            return get_project_topic()
+        else:
+            return topic
+    elif reply.lower() == 'n':
+        return None
+    else:
+        print('expected (y/n)')
+        return get_project_topic()
 
 def qcm_features(features):
     print("==== Features ====")
@@ -66,16 +86,20 @@ def describe_project(api, logger, project_id):
         if project == None:
             print('project {} does not exist'.format(project_id))
             return None
-        project_table = PrettyTable(['id', 'name', 'type', 'features', 'labels', 'algorithms'])
+        project_table = PrettyTable(['id', 'name', 'type', 'features', 'labels', 'algorithms', 'topic'])
         project_id = project['id']
         project_name = project['name']
         project_problem = project['problem']
         project_features = project['configuration']['features']['id']
+        project_datastream = project['configuration']['dataStream']
+        project_topic = ''
+        if project_datastream != None:
+            project_topic = project_datastream['topic']
         project_labels = None
         if project_problem == 'classification':
             project_labels = project['configuration']['labels']['id']
         project_algorithms = len(project['algorithms'])
-        project_table.add_row([project_id, project_name, project_problem, project_features, project_labels, project_algorithms])
+        project_table.add_row([project_id, project_name, project_problem, project_features, project_labels, project_algorithms, project_topic])
         print(project_table)
         policy = project['policy']
         policy_class = policy['class']
@@ -98,17 +122,21 @@ def describe_project(api, logger, project_id):
 def list_projects(api, logger):
     try:
         projects = api.list_projects(logger, log=False)
-        table = PrettyTable(['id', 'name', 'type', 'features', 'labels', 'algorithms'])
+        table = PrettyTable(['id', 'name', 'type', 'features', 'labels', 'algorithms', 'topic'])
         for project in projects:
             project_id = project['id']
             project_name = project['name']
             project_problem = project['problem']
             project_features = project['configuration']['features']['id']
+            project_datastream = project['configuration']['dataStream']
+            project_topic = ''
+            if project_datastream != None:
+                project_topic = project_datastream['topic']
             project_labels = None
             if project_problem == 'classification':
                 project_labels = project['configuration']['labels']['id']
             project_algorithms = len(project['algorithms'])
-            table.add_row([project_id, project_name, project_problem, project_features, project_labels, project_algorithms])
+            table.add_row([project_id, project_name, project_problem, project_features, project_labels, project_algorithms, project_topic])
         print(table)
         return projects
 
@@ -131,26 +159,38 @@ def list_algorithms(project, logger):
         logger.warn('an unhandled error occurred in list_algorithms: {}'.format(err))
 
 
-def create_project(api, logger, project_id, project_name=None, problem_type=None, feature_id=None, label_id=None):
+def create_project(api, logger, project_id, project_name=None, problem_type=None, feature_id=None, label_id=None, project_topic=None):
     try:
         features = api.list_features(logger, log=False)
         if features == None:
-            return None
-        labels = api.list_labels(logger, log=False)
-        if labels == None:
             return None
         if project_name == None:
             project_name = get_project_name()
         if problem_type == None:
             problem_type = get_problem_type()
+
         if feature_id == None:
             feature_id = qcm_features(features)
-        if label_id == None:
-            label_id = qcm_labels(labels)
-        api.create_project(logger, Project(project_id,project_name, problem_type, feature_id, label_id))
+
+        if problem_type == 'classification':
+            labels = api.list_labels(logger, log=False)
+            if labels == None:
+                return None
+            if label_id == None:
+                label_id = qcm_labels(labels)
+        
+        if project_topic == None:
+            project_topic = get_project_topic()
+        api.create_project(logger, Project(project_id,project_name, problem_type, feature_id, label_id, project_topic))
         print("Ready to start predicting !")
     except Exception as err:
         logger.warn('an unhandled error occurred in create_project: {}'.format(err))
+
+def delete_project(api, logger, project_id):
+    try:
+        api.delete_project(logger, project_id)
+    except Exception as err:
+        logger.warn('an unhandled error occurred in delete_project: {}'.format(err))
 
 def update_project(api, logger, project_id):
     project = api.get_project(logger, project_id, log=False)
