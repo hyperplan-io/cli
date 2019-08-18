@@ -172,7 +172,6 @@ def create_project(api, logger, project_id, project_name=None, problem_type=None
         if feature_id == None:
             feature_id = qcm_features(features)
 
-        label_id = None
         if problem_type == 'classification':
             labels = api.list_labels(logger, log=False)
             if labels == None:
