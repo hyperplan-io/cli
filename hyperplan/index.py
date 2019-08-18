@@ -47,24 +47,6 @@ def get_password(service):
     password = keyring.get_password(service, "password")
     return (username, password)
 
-def get_root_api_url(service):
-    try:
-        config_file_path =  os.path.expanduser('~/.hyperplan')
-        config_file = open(config_file_path, 'r+')
-        root_api_url = config_file.readline()
-        should_persist = False
-        if root_api_url == "":
-            root_api_url = input('api url: ')
-            should_persist = True
-        health = get_health(root_api_url)
-        if health and should_persist:
-            config_file.write(root_api_url)
-        config_file.flush()
-        config_file.close()
-        return (health, root_api_url)
-    except Exception as err:
-        print(err)
-
 def prompt_credentials():
     login= input("Login: ")
     password = getpass.getpass()
@@ -76,15 +58,18 @@ def help():
 def main():
     argv = sys.argv[1:]
     try:
-        opts, args = getopt.getopt(argv,"hl:",["loglevel=", "help"])
+        opts, args = getopt.getopt(argv,"hl:s",["loglevel=", "server=", "help"])
     except getopt.GetoptError:
         help()
         sys.exit(2)
     log_level = logging.INFO
+    server = "http://localhost:8080"
     for opt, arg in opts:
         if opt in('-h', '--help'):
             help()
             sys.exit()
+        elif opt in ("-s", "--server"):
+            server = arg 
         elif opt in ("-l", "--loglevel"):
             if arg.lower() == 'debug':
                 log_level = logging.DEBUG
@@ -102,17 +87,17 @@ def main():
     logger = logging.getLogger()
     logger.setLevel(level=log_level)
     logging.basicConfig(level=log_level)
-    (health, root_api_url) = get_root_api_url(default_service)
+    health = get_health(server)
     if health == False:
-        print('Server is not reachable, is it running on "{}" ?'.format(root_api_url))
+        print('Server is not reachable, is it running on "{}" ?'.format(server))
     else:
         login, password = get_password(default_service)
         if login != None and password != None:
-            create_api_and_start_cmd(default_service, logger, root_api_url, login, password)
+            create_api_and_start_cmd(default_service, logger, server, login, password)
         else:
             try:
                 login, password = prompt_credentials()
-                api = get_api(default_service, root_api_url, login, password)
+                api = get_api(default_service, server, login, password)
                 api.authenticate(logger, save_credentials=True, log_error=False)
                 start_cmd(api, logger)
             except InvalidCredentials:
