@@ -191,6 +191,9 @@ class Api():
                 if log:
                     print(project)
                 return project
+            elif response.status_code == 404:
+                print('Project {} does not exist'.format(project_id))
+                return None
         except (RemoteDisconnected, ConnectionError):
             self.remote_disconnected()
 
@@ -207,6 +210,9 @@ class Api():
                 if log:
                     print(features)
                 return features 
+            elif response.status_code == 404:
+                print('Feature {} does not exist'.format(features_id))
+                return None
         except (RemoteDisconnected, ConnectionError):
             self.remote_disconnected()
     def get_labels(self, logger, labels_id, log=True):
@@ -222,6 +228,9 @@ class Api():
                 if log:
                     print(labels)
                 return labels 
+            elif response.status_code == 404:
+                print('Label {} does not exist'.format(labels_id))
+                return None
         except (RemoteDisconnected, ConnectionError):
             self.remote_disconnected()
     def predict(self, logger, project_id, features):

@@ -28,6 +28,8 @@ def list_labels(api, logger):
     try:
         labels = api.list_labels(logger, log=False)
         logger.debug('server returns labels: {}'.format(labels))
+        if labels == None:
+            return None
         table = PrettyTable(['Id', 'Type', 'Description', 'oneOf'])
         for label in labels:
             data = label['data']
@@ -51,6 +53,8 @@ def describe_label(api, logger, label_id):
     try:
         label = api.get_labels(logger, label_id, log=False)
         logger.debug('server returns label: {}'.format(label))
+        if label == None:
+            return None
         data = label['data']
         label_type = data['type']
         label_description = data['description']

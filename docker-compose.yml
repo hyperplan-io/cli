@@ -1,4 +1,4 @@
-version: '3'    
+version: '3.7'    
 services:    
   hyperplan-server:    
     image:  hyperplan/server:latest
@@ -14,8 +14,15 @@ services:
       - POSTGRESQL_DATABASE=postgres
       - POSTGRESQL_USERNAME=postgres
       - POSTGRESQL_PASSWORD=postgres
+    networks: 
+      - hyperplan 
   postgres:    
     image: "postgres:latest"    
     environment:    
      - POSTGRES_PASSWORD=postgres
-
+    networks: 
+      - hyperplan
+networks:
+  hyperplan:
+    name: "hyperplan"
+    driver: "bridge"
