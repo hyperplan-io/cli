@@ -109,14 +109,14 @@ def label_build(label_type, label_one_of, label_description):
 
 
 def get_label_data(label_type=None, label_one_of=None, label_description=None):
-    if label_type == None:
+    if label_type is None:
         label_type = get_label_type()
-    if label_type == 'oneOf' and label_one_of == None:
+    if label_type == 'oneOf' and label_one_of is None:
         label_one_of = get_label_one_of()
     elif label_type == 'dynamic':
         label_one_of = []
     print(label_one_of)
-    if label_description == None:
+    if label_description is None:
         label_description = get_label_description()
     print("==============")
     return label_build(label_type, label_one_of, label_description)

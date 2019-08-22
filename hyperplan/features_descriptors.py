@@ -62,7 +62,7 @@ def describe_feature(api, logger, feature_id):
         logger.warn('an unhandled error occurred in describe_feature: {}'.format(err))
 
 def create_features(api, logger, feature_id, features=None):
-    if features == None:
+    if features is None:
         table = PrettyTable(['name', 'type', 'dimension', 'description'])
         features = []
         print(table)

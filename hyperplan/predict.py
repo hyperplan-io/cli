@@ -49,12 +49,12 @@ def add_example(api, logger, prediction_id):
 def predict(api, logger, project_id, features=None, annotate=True, log=True):
     try:
         project = api.get_project(logger, project_id, log=False)
-        if project == None:
+        if project is None:
             print('project {} does not exist'.format(project_id))
             return None
         problem_type = project['problem']
         features_descriptor = project['configuration']['features']['data']
-        if features == None:
+        if features is None:
             features = {}
             for descriptor in features_descriptor:
                 feature_name = descriptor['name']

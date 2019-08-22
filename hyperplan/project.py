@@ -63,7 +63,7 @@ def get_problem_type():
 def describe_project(api, logger, project_id):
     try:
         project = api.get_project(logger, project_id, log=False)
-        if project == None:
+        if project is None:
             print('project {} does not exist'.format(project_id))
             return None
         project_table = PrettyTable(['id', 'name', 'type', 'features', 'labels', 'algorithms'])
@@ -134,18 +134,18 @@ def list_algorithms(project, logger):
 def create_project(api, logger, project_id, project_name=None, problem_type=None, feature_id=None, label_id=None):
     try:
         features = api.list_features(logger, log=False)
-        if features == None:
+        if features is None:
             return None
         labels = api.list_labels(logger, log=False)
-        if labels == None:
+        if labels is None:
             return None
-        if project_name == None:
+        if project_name is None:
             project_name = get_project_name()
-        if problem_type == None:
+        if problem_type is None:
             problem_type = get_problem_type()
-        if feature_id == None:
+        if feature_id is None:
             feature_id = qcm_features(features)
-        if label_id == None:
+        if label_id is None:
             label_id = qcm_labels(labels)
         api.create_project(logger, Project(project_id,project_name, problem_type, feature_id, label_id))
         print("Ready to start predicting !")
