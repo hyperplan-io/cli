@@ -39,9 +39,9 @@ class TestWorkingApi:
         assert label_data == { 'id': 'myLabel', 'data': {'type': 'oneOf', 'oneOf': ['test1', 'test2', 'test3'], 'description': 'My description'}}
     
     def test_06_create_project(self):
-        create_project(self.api, self.logger, 'myProjectId', 'My project name', 'classification', 'myFeature', 'myLabel')
+        create_project(self.api, self.logger, 'myProjectId', 'My project name', 'classification', 'myFeature', 'myLabel', 'myTopic')
         project = describe_project(self.api, self.logger, 'myProjectId')
-        assert project == {'id': 'myProjectId', 'name': 'My project name', 'problem': 'classification', 'algorithms': [{'id': 'random', 'projectId': 'myProjectId', 'backend': {'class': 'LocalRandomClassification', 'labels': ['test1', 'test2', 'test3']}, 'security': {'encryption': 'plain', 'headers': []}}], 'policy': {'class': 'DefaultAlgorithm', 'algorithmId': 'random'}, 'configuration': {'features': {'id': 'myFeature', 'data': [{'name': 'myFeature', 'type': 'string', 'dimension': 'scalar', 'description': 'My custom feature'}]}, 'labels': {'id': 'myLabel', 'data': {'type': 'oneOf', 'oneOf': ['test1', 'test2', 'test3'], 'description': 'My description'}}, 'dataStream': None}}
+        assert project == {'id': 'myProjectId', 'name': 'My project name', 'problem': 'classification', 'algorithms': [{'id': 'random', 'projectId': 'myProjectId', 'backend': {'class': 'LocalRandomClassification', 'labels': ['test1', 'test2', 'test3']}, 'security': {'encryption': 'plain', 'headers': []}}], 'policy': {'class': 'DefaultAlgorithm', 'algorithmId': 'random'}, 'configuration': {'features': {'id': 'myFeature', 'data': [{'name': 'myFeature', 'type': 'string', 'dimension': 'scalar', 'description': 'My custom feature'}]}, 'labels': {'id': 'myLabel', 'data': {'type': 'oneOf', 'oneOf': ['test1', 'test2', 'test3'], 'description': 'My description'}}, 'dataStream': {'topic': 'myTopic'}}}
 
     def test_07_predict(self):
         prediction = predict(self.api, self.logger, 'myProjectId', features = { 'myFeature': 'example string' }, annotate=False, log=False)
