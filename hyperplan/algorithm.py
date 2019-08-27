@@ -30,6 +30,13 @@ class SecurityConfig():
 class Backend():
     pass
 
+class BasicHttpClassificationBackend(Backend):
+    def __init__(self, root_path, ):
+        self.root_path = root_path 
+    def to_json(self):
+        return {'class': 'BasicHttpClassification', 'rootPath': self.root_path}
+
+
 class TensorFlowClassificationBackend(Backend):
     def __init__(self, root_path, model_name, model_version, features_transformer, labels_transformer):
         self.root_path = root_path 
@@ -133,14 +140,21 @@ def get_tensorflow_regression_backend(project):
 def get_rasa_nlu_classification_backend(project):
     pass
 
+def get_basic_http_classification_backend(project):
+    root_path = input('root path: ')
+    return BasicHttpClassificationBackend(root_path)
+
 def get_classification_backend(project):
     print('1. TensorFlow Serving')
     print('2. Rasa Nlu')
+    print('3. Hyperplan Basic Http')
     choice = input('Backend: ')
     if choice == '1':
         return get_tensorflow_classification_backend(project)
     elif choice == '2':
         return get_rasa_nlu_classification_backend(project)
+    elif choice == '3':
+        return get_basic_http_classification_backend(project)
     else:
         print('Unexpected choice {}'.format(choice))
         return get_classification_backend(project)

@@ -35,12 +35,13 @@ def list_features(api, logger):
     try:
         table = PrettyTable(['id', 'feature names'])
         features = api.list_features(logger, log=False)
-        for feature in features:
-            feature_id = feature['id']
-            feature_data = feature['data']
-            feature_names = ", ".join([data['name']for data in feature_data])
-            table.add_row([feature_id, feature_names])
-        print(table)
+        if features != None:
+            for feature in features:
+                feature_id = feature['id']
+                feature_data = feature['data']
+                feature_names = ", ".join([data['name']for data in feature_data])
+                table.add_row([feature_id, feature_names])
+            print(table)
         return features
     except Exception as err:
         logger.warn('an unhandled error occurred in list_features: {}'.format(err))
@@ -50,13 +51,14 @@ def describe_feature(api, logger, feature_id):
     try:
         table = PrettyTable(['name', 'type', 'dimension', 'description'])
         features = api.get_features(logger, feature_id, log=False)
-        for data in features['data']:
-            feature_name = data['name']
-            feature_type = data['type']
-            feature_dimension = data['dimension']
-            feature_description = data['description']
-            table.add_row([feature_name, feature_type, feature_dimension, feature_description])
-        print(table)
+        if features != None:
+            for data in features['data']:
+                feature_name = data['name']
+                feature_type = data['type']
+                feature_dimension = data['dimension']
+                feature_description = data['description']
+                table.add_row([feature_name, feature_type, feature_dimension, feature_description])
+            print(table)
         return features
     except Exception as err:
         logger.warn('an unhandled error occurred in describe_feature: {}'.format(err))
@@ -74,7 +76,7 @@ def create_features(api, logger, feature_id, features=None):
             table.add_row(feature.values())
             print(table)
         if result == QCMResult.CLOSE_AND_SAVE:
-            print('saving feature descriptor {}'.format(feature_id))
+            print('saving feature {}'.format(feature_id))
             try:
                 api.create_feature(logger, FeatureSchema(feature_id, features))
             except Exception as err:
